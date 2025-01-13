@@ -4,7 +4,7 @@ namespace DataSimulator;
 
 internal class Program
 {
-	static void Main(string[] args)
+	static async Task Main(string[] args)
 	{
 		Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
 			.WriteTo.Console()
@@ -19,6 +19,14 @@ internal class Program
 		var numberOfDevices = Convert.ToInt32(args[0]);
 		var dataSendPeriod = Convert.ToInt32(args[1]); // in seconds
 		
-		DataSimulator.LaunchSimulator(numberOfDevices, dataSendPeriod);
+		var dataSimulator = new DataSimulator();
+		
+		dataSimulator.LaunchSimulator(numberOfDevices, dataSendPeriod);
+
+		Console.WriteLine("Press any key to exit...");
+
+		Console.ReadLine();
+		
+		await dataSimulator.Stop();
 	}
 }
