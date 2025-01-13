@@ -1,6 +1,6 @@
 ﻿namespace DataSimulator.Device;
 
-public struct SimpleDeviceProducedValue
+public struct DummyDeviceValue
 {
 	public byte ByteValue { get; set; }
 
