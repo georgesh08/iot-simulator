@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package IoTServer;
+
+enum DeviceType {
+    SENSOR = 0;
+    CAMERA = 1;
+    WEARABLE = 2;
+    LIGHTING = 3;
+    SECURITY = 4;
+    OTHER = 9;
+}
+
+message DummyDeviceData {
+  int32 value1 = 1;
+  int32 value2 = 2;
+}
+
+message SensorDeviceData {
+  repeated int32 data = 1;
+  int64 timestamp = 2;
+}
+
+message IoTDevice {
+  string name = 1;
+  DeviceType type = 2;
+}
