@@ -4,5 +4,5 @@ public struct DummyDeviceValue
 {
 	public byte ByteValue { get; set; }
 
-	public long LongValue { get; set; }
+	public int IntValue { get; set; }
 }
