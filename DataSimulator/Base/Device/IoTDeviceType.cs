@@ -1,4 +1,4 @@
-﻿namespace DataSimulator.Device;
+﻿namespace Base.Device;
 
 public enum IoTDeviceType
 {

@@ -1,6 +1,6 @@
-﻿using DataSimulator.Base;
+﻿using Base.Base;
 
-namespace DataSimulator.Device;
+namespace Base.Device;
 
 public class DummyDevice(string name) : ABaseIoTDevice<DummyDeviceValue>(name)
 {

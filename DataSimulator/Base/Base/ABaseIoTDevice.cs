@@ -1,9 +1,9 @@
-﻿using DataSimulator.Device;
+﻿using Base.Device;
 using Utils;
 
-namespace DataSimulator.Base;
+namespace Base.Base;
 
-public abstract class ABaseIoTDevice<T> where T : struct
+public abstract class ABaseIoTDevice<T> 
 {
 	private bool isActive;
 	private readonly string name;
