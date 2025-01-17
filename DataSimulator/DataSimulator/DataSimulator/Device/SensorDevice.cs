@@ -20,7 +20,7 @@ public class SensorDevice : ABaseIoTDevice<SensorDeviceValue>
 		LastProducedValue = new SensorDeviceValue
 		{
 			Data = newBytes,
-			Timestamp = DateTime.Now
+			Timestamp = DateTime.UtcNow
 		};
 	}
 }
