@@ -7,8 +7,42 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Protobuf Include="..\..\proto\IoTDeviceService.proto" GrpcServices="Server" Link="proto\IoTDeviceService.proto" />
+        <Protobuf Include="..\..\proto\*.proto" Link="proto\Device.proto" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Protobuf" Version="3.29.3" />
       <PackageReference Include="Grpc.Core" Version="2.46.6" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+      <PackageReference Include="Grpc.Tools" Version="2.69.0" />
       <PackageReference Include="Serilog" Version="4.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs" />
+      <Compile Include="obj\Debug\net8.0\Device.cs" />
+      <Compile Include="obj\Debug\net8.0\DeviceGrpc.cs" />
+      <Compile Include="obj\Debug\net8.0\IoTDeviceService.cs" />
+      <Compile Include="obj\Debug\net8.0\IoTDeviceServiceGrpc.cs" />
+      <Compile Include="obj\Debug\net8.0\SimulatorServer.AssemblyInfo.cs" />
+      <Compile Include="obj\Debug\net8.0\SimulatorServer.GlobalUsings.g.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="obj\Debug\net8.0\08a1cd98a1ff1f15_Device.protodep" />
+      <Content Include="obj\Debug\net8.0\08a1cd98a1ff1f15_IoTDeviceService.protodep" />
+      <Content Include="obj\Debug\net8.0\refint\SimulatorServer.dll" />
+      <Content Include="obj\Debug\net8.0\ref\SimulatorServer.dll" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.AssemblyInfoInputs.cache" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.assets.cache" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.csproj.AssemblyReference.cache" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.csproj.CoreCompileInputs.cache" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.csproj.FileListAbsolute.txt" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.dll" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.GeneratedMSBuildEditorConfig.editorconfig" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.pdb" />
+      <Content Include="obj\Debug\net8.0\SimulatorServer.sourcelink.json" />
     </ItemGroup>
 
 </Project>
