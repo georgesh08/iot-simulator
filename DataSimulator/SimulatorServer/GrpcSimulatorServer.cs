@@ -36,6 +36,7 @@ public class GrpcSimulatorServer
 
 	public async Task StopAsync(TimeSpan? timeout = null)
 	{
+		Log.Information("Stooping grpc server...");
 		await token?.CancelAsync();
 		foreach (var service in services)
 		{
@@ -55,6 +56,7 @@ public class GrpcSimulatorServer
 		else
 		{
 			await shutdownTask;
+			Log.Information("Gprc server stopped.");
 		}
 	}
 }
