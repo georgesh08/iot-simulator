@@ -25,3 +25,10 @@ message IoTDevice {
   string name = 1;
   DeviceType type = 2;
 }
+
+message DeviceProducedValue {
+  oneof value {
+    DummyDeviceData dummyValue = 1;
+    SensorDeviceData sensorValue = 2;
+  }
+}

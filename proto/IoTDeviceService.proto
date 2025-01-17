@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package IoTServer;
+
+import "Device.proto";
+
+service IoTDeviceService {
+  rpc RegisterNewDevice (DeviceRegisterRequest) returns (DeviceRegisterResponse);
+  rpc SendDeviceData (DeviceData) returns (DeviceDataResponse);
+}
+
+enum Status {
+  StatusOk = 0;
+  StatusError = 1;
+}
+
+message DeviceRegisterRequest {
+  IoTDevice device = 1;
+}
+
+message DeviceRegisterResponse {
+  Status status = 1;
+  string deviceId = 2;
+}
+
+message DeviceData {
+  string deviceId = 1;
+  DeviceProducedValue deviceValue = 2;
+}
+
+message DeviceDataResponse {
+  Status status = 1;
+}
+
