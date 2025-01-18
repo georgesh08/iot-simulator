@@ -17,8 +17,8 @@ message DummyDeviceData {
 }
 
 message SensorDeviceData {
-  repeated int32 data = 1;
-  int64 timestamp = 2;
+  bytes data = 1;
+  uint64 timestamp = 2;
 }
 
 message IoTDevice {
