@@ -7,8 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\..\proto\IoTDeviceService.proto" GrpcServices="Server" Link="proto\IoTDeviceService.proto" />
-        <Protobuf Include="..\..\proto\*.proto" />
+        <Protobuf Include="..\..\proto\IoTDeviceService.proto" GrpcServices="Client" />
     </ItemGroup>
 
     <ItemGroup>

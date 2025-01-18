@@ -1,4 +1,6 @@
-﻿using Base.Device;
+﻿using System;
+using Base.Device;
+using IoTServer;
 using Utils;
 
 namespace Base.Base;
@@ -21,8 +23,6 @@ public abstract class ABaseIoTDevice
 	public Guid Id => id;
 	public string Name => name;
 	
-	public IIoTDeviceValue LastProducedValue { get; protected set; }
-	
 	public virtual IoTDeviceType DeviceType { get; }
 	
 	public bool IsActive => isActive;
@@ -41,5 +41,8 @@ public abstract class ABaseIoTDevice
 			valueProducerScheduler.Stop();
 		}
 	}
+
+	public abstract DeviceProducedValue GetDeviceProducedValue();
+	
 	protected abstract void ProduceValue();
 }
