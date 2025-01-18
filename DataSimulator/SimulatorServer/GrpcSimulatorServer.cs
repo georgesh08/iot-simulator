@@ -9,25 +9,25 @@ public class GrpcSimulatorServer
 	private readonly Server grpcServer;
 	
 	private readonly IoTDeviceService ioTDeviceService;
-	private CancellationTokenSource token;
 
 	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
 	{
 		grpcServer = new Server
 		{
-			Ports = { new ServerPort("0.0.0.0", 16848, ServerCredentials.Insecure) }
+			Ports = { new ServerPort("127.0.0.1", 16848, ServerCredentials.Insecure) }
 		};
 		
-		ioTDeviceService = new IoTDeviceService(period);
+		ioTDeviceService = new IoTDeviceService(period)
+		{
+			DevicesToRegister = devices
+		};
 	}
 
 	public void Start()
 	{
 		Log.Information("Starting grpc server...");
-		token?.Cancel();
-		token = new CancellationTokenSource();
 		
-		ioTDeviceService.Start(token);
+		ioTDeviceService.Start();
 
 		grpcServer.Start();
 		
@@ -37,7 +37,6 @@ public class GrpcSimulatorServer
 	public async Task StopAsync(TimeSpan? timeout = null)
 	{
 		Log.Information("Stooping grpc server...");
-		await token?.CancelAsync();
 		
 		ioTDeviceService.Stop();
 		
@@ -56,10 +55,5 @@ public class GrpcSimulatorServer
 			await shutdownTask;
 			Log.Information("Gprc server stopped.");
 		}
-	}
-
-	public void RegisterDevices()
-	{
-		
 	}
 }
