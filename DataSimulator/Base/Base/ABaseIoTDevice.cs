@@ -3,7 +3,7 @@ using Utils;
 
 namespace Base.Base;
 
-public abstract class ABaseIoTDevice<T> 
+public abstract class ABaseIoTDevice<T> where T : IIoTDeviceValue
 {
 	private bool isActive;
 	private readonly string name;
@@ -17,9 +17,7 @@ public abstract class ABaseIoTDevice<T>
 		id = Guid.NewGuid();
 		valueProducerScheduler = new PeriodicalScheduler(ProduceValue, TimeSpan.FromSeconds(1));
 	}
-
-	public T ProducedValue { get; }
-
+	
 	public Guid Id => id;
 	public string Name => name;
 	
