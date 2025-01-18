@@ -2,7 +2,7 @@
 
 namespace Base.Device.Factory;
 
-public class DummyDeviceFactory : AIoTDeviceFactory<DummyDevice, DummyDeviceValue>
+public class DummyDeviceFactory : AIoTDeviceFactory
 {
 	public DummyDeviceFactory()
 	{

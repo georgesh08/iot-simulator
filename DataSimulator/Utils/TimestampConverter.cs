@@ -2,7 +2,7 @@
 
 public class TimestampConverter
 {
-	static ulong ConvertToTimestamp(DateTime dateTime)
+	public static ulong ConvertToTimestamp(DateTime dateTime)
 	{
 		var utcDateTime = dateTime.ToUniversalTime();
 		
@@ -11,7 +11,7 @@ public class TimestampConverter
 		return timestamp;
 	}
 
-	static DateTime ConvertFromTimestamp(ulong timestamp)
+	public static DateTime ConvertFromTimestamp(ulong timestamp)
 	{
 		return DateTime.UnixEpoch.AddMilliseconds(timestamp);
 	}

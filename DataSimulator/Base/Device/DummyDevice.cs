@@ -2,7 +2,7 @@
 
 namespace Base.Device;
 
-public class DummyDevice(string name) : ABaseIoTDevice<DummyDeviceValue>(name)
+public class DummyDevice(string name) : ABaseIoTDevice(name)
 {
 	public override IoTDeviceType DeviceType => IoTDeviceType.OTHER;
 	

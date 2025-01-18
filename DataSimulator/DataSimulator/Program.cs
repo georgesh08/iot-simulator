@@ -16,8 +16,13 @@ internal class Program
 			return;
 		}
 		
+		Log.Information("Starting data simulation");
+		
 		var numberOfDevices = Convert.ToInt32(args[0]);
 		var dataSendPeriod = Convert.ToInt32(args[1]); // in seconds
+		
+		Log.Information("{0} devices will be generated, data sending period is {1} seconds", 
+			numberOfDevices, dataSendPeriod);
 		
 		var dataSimulator = new DataSimulator();
 		

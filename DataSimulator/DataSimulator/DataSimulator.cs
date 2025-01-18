@@ -9,12 +9,11 @@ public class DataSimulator
 	public DataSimulator()
 	{
 		server = new GrpcSimulatorServer();
-		
-		server.Start();
 	}
 	
 	public void LaunchSimulator(int numberOfDevices, int dataSendPeriod)
 	{
+		server.Start();
 		
 	}
 	

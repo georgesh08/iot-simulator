@@ -2,11 +2,9 @@
 
 namespace Base.Base;
 
-public abstract class AIoTDeviceFactory<TDevice, TValue> 
-	where TDevice : ABaseIoTDevice<TValue>
-	where TValue : IIoTDeviceValue
+public abstract class AIoTDeviceFactory
 {
 	protected DeviceNameGenerator NameGenerator;
 	
-	public abstract TDevice CreateDevice();
+	public abstract ABaseIoTDevice CreateDevice();
 }

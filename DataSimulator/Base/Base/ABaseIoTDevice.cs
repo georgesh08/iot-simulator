@@ -3,7 +3,7 @@ using Utils;
 
 namespace Base.Base;
 
-public abstract class ABaseIoTDevice<T> where T : IIoTDeviceValue
+public abstract class ABaseIoTDevice
 {
 	private bool isActive;
 	private readonly string name;
@@ -21,7 +21,7 @@ public abstract class ABaseIoTDevice<T> where T : IIoTDeviceValue
 	public Guid Id => id;
 	public string Name => name;
 	
-	public T LastProducedValue { get; protected set; }
+	public IIoTDeviceValue LastProducedValue { get; protected set; }
 	
 	public virtual IoTDeviceType DeviceType { get; }
 	

@@ -9,5 +9,5 @@ public class DeviceManager
 {
 	private readonly PeriodicalScheduler dataSenderScheduler;
 	
-	private readonly ConcurrentDictionary<Guid, ABaseIoTDevice<IIoTDeviceValue>> devices = new();
+	private readonly ConcurrentDictionary<Guid, ABaseIoTDevice> devices = new();
 }

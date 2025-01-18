@@ -2,7 +2,7 @@
 
 namespace Base.Device;
 
-public class SensorDevice : ABaseIoTDevice<SensorDeviceValue>
+public class SensorDevice : ABaseIoTDevice
 {
 	public SensorDevice(string name) : base(name)
 	{

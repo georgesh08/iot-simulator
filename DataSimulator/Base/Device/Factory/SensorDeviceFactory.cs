@@ -2,7 +2,7 @@
 
 namespace Base.Device.Factory;
 
-public class SensorDeviceFactory : AIoTDeviceFactory<SensorDevice, SensorDeviceValue>
+public class SensorDeviceFactory : AIoTDeviceFactory
 {
 	public SensorDeviceFactory()
 	{
