@@ -1,4 +1,5 @@
 ﻿using Base.Base;
+using Utils;
 
 namespace Base.Device;
 
@@ -20,7 +21,7 @@ public class SensorDevice : ABaseIoTDevice
 		LastProducedValue = new SensorDeviceValue
 		{
 			Data = newBytes,
-			Timestamp = DateTime.UtcNow
+			Timestamp = TimestampConverter.ConvertToTimestamp(DateTime.UtcNow)
 		};
 	}
 }
