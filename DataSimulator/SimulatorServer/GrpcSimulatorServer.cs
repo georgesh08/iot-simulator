@@ -27,9 +27,8 @@ public class GrpcSimulatorServer
 	{
 		Log.Information("Starting grpc server...");
 		
-		ioTDeviceService.Start();
-
 		grpcServer.Start();
+		ioTDeviceService.Start();
 		
 		Log.Information("Gprc server started.");
 	}
