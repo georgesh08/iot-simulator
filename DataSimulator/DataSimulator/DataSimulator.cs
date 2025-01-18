@@ -9,15 +9,11 @@ public class DataSimulator
 {
 	private GrpcSimulatorServer server;
 	
-	public DataSimulator()
-	{
-		server = new GrpcSimulatorServer();
-	}
-	
 	public void LaunchSimulator(int numberOfDevices, int dataSendPeriod)
 	{
+		var devices = GenerateData(numberOfDevices);
+		server = new GrpcSimulatorServer(devices, dataSendPeriod);
 		server.Start();
-		
 	}
 	
 	public async Task Stop()
@@ -32,8 +28,7 @@ public class DataSimulator
 
 		for (var i = 1; i <= numberOfDevices; i++)
 		{
-			ABaseIoTDevice? createdDevice;
-			createdDevice = deviceFactory.CreateDevice(i % 2 == 0 ? IoTDeviceType.SENSOR : IoTDeviceType.OTHER);
+			var createdDevice = deviceFactory.CreateDevice(i % 2 == 0 ? IoTDeviceType.SENSOR : IoTDeviceType.OTHER);
 
 			if (createdDevice != null)
 			{

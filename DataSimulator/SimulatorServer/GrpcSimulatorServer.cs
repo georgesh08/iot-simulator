@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Base.Base;
+using Grpc.Core;
 using Serilog;
 
 namespace SimulatorServer;
@@ -7,15 +8,17 @@ public class GrpcSimulatorServer
 {
 	private readonly Server grpcServer;
 	
-	private readonly List<IGrpcService> services = new();
+	private readonly IoTDeviceService ioTDeviceService;
 	private CancellationTokenSource token;
 
-	public GrpcSimulatorServer()
+	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
 	{
 		grpcServer = new Server
 		{
 			Ports = { new ServerPort("0.0.0.0", 16848, ServerCredentials.Insecure) }
 		};
+		
+		ioTDeviceService = new IoTDeviceService(period);
 	}
 
 	public void Start()
@@ -24,10 +27,7 @@ public class GrpcSimulatorServer
 		token?.Cancel();
 		token = new CancellationTokenSource();
 		
-		foreach (var service in services)
-		{
-			service.Start(token);
-		}
+		ioTDeviceService.Start(token);
 
 		grpcServer.Start();
 		
@@ -38,10 +38,8 @@ public class GrpcSimulatorServer
 	{
 		Log.Information("Stooping grpc server...");
 		await token?.CancelAsync();
-		foreach (var service in services)
-		{
-			service.Stop();
-		}
+		
+		ioTDeviceService.Stop();
 		
 		var shutdownTask = grpcServer.ShutdownAsync();
 		if (timeout.HasValue)
@@ -58,5 +56,10 @@ public class GrpcSimulatorServer
 			await shutdownTask;
 			Log.Information("Gprc server stopped.");
 		}
+	}
+
+	public void RegisterDevices()
+	{
+		
 	}
 }
