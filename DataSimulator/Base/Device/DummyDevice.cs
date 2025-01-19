@@ -10,8 +10,6 @@ public class DummyDevice(string name) : ABaseIoTDevice(name)
 	
 	public override IoTDeviceType DeviceType => IoTDeviceType.OTHER;
 	
-	public byte ByteValue => byteValue;
-
 	public override DeviceProducedValue GetDeviceProducedValue()
 	{
 		return new DeviceProducedValue
@@ -19,7 +17,8 @@ public class DummyDevice(string name) : ABaseIoTDevice(name)
 			DummyValue = new DummyDeviceData
 			{
 				Value1 = byteValue,
-				Value2 = intValue
+				Value2 = intValue,
+				ActiveStatus = IsActive
 			}
 		};
 	}
@@ -28,5 +27,15 @@ public class DummyDevice(string name) : ABaseIoTDevice(name)
 	{
 		byteValue = (byte)Random.Shared.Next(byte.MinValue, byte.MaxValue + 1);
 		intValue = Random.Shared.Next(10000);
+		
+		if (intValue % 6 == 0)
+		{
+			Deactivate();
+		}
+
+		if (byteValue % 3 == 0)
+		{
+			Activate();
+		}
 	}
 }

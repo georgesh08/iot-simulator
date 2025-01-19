@@ -14,11 +14,13 @@ enum DeviceType {
 message DummyDeviceData {
   int32 value1 = 1;
   int32 value2 = 2;
+  bool activeStatus = 3;
 }
 
 message SensorDeviceData {
   bytes data = 1;
   uint64 timestamp = 2;
+  bool activeStatus = 3;
 }
 
 message IoTDevice {

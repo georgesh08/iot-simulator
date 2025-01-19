@@ -1,5 +1,4 @@
-﻿using System;
-using Base.Device;
+﻿using Base.Device;
 using IoTServer;
 using Utils;
 
@@ -18,6 +17,7 @@ public abstract class ABaseIoTDevice
 		this.name = name;
 		id = Guid.NewGuid();
 		valueProducerScheduler = new PeriodicalScheduler(ProduceValue, TimeSpan.FromSeconds(1));
+		isActive = true;
 	}
 	
 	public Guid Id => id;
@@ -40,6 +40,16 @@ public abstract class ABaseIoTDevice
 		{
 			valueProducerScheduler.Stop();
 		}
+	}
+
+	public void Activate()
+	{
+		isActive = true;
+	}
+
+	public void Deactivate()
+	{
+		isActive = false;
 	}
 
 	public abstract DeviceProducedValue GetDeviceProducedValue();

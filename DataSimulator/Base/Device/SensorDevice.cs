@@ -24,18 +24,29 @@ public class SensorDevice : ABaseIoTDevice
 			SensorValue = new SensorDeviceData
 			{
 				Timestamp = timestamp,
-				Data = ByteString.CopyFrom(data.Span)
+				Data = ByteString.CopyFrom(data.Span),
+				ActiveStatus = IsActive
 			}
 		};
 	}
 
 	protected override void ProduceValue()
 	{
-		var bytesToGenerate = Random.Shared.Next(2, 11);
+		var bytesToGenerate = Random.Shared.Next(5, 11);
 		var newBytes = new byte[bytesToGenerate];
 		Random.Shared.NextBytes(newBytes);
 
 		data = new Memory<byte>(newBytes);
 		timestamp = TimestampConverter.ConvertToTimestamp(DateTime.UtcNow);
+
+		if (data.Span[3] + data.Span[5] >= 100)
+		{
+			Deactivate();
+		}
+
+		if (data.Span[4] <= 50)
+		{
+			Activate();
+		}
 	}
 }
