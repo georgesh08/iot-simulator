@@ -6,6 +6,7 @@ namespace SimulatorServer;
 
 public class GrpcSimulatorServer
 {
+	private const int Port = 16848;
 	private readonly Server grpcServer;
 	
 	private readonly IoTDeviceService ioTDeviceService;
@@ -14,7 +15,7 @@ public class GrpcSimulatorServer
 	{
 		grpcServer = new Server
 		{
-			Ports = { new ServerPort("127.0.0.1", 16848, ServerCredentials.Insecure) }
+			Ports = { new ServerPort("127.0.0.1", Port, ServerCredentials.Insecure) }
 		};
 		
 		ioTDeviceService = new IoTDeviceService(period)
@@ -30,7 +31,7 @@ public class GrpcSimulatorServer
 		grpcServer.Start();
 		ioTDeviceService.Start();
 		
-		Log.Information("Gprc server started.");
+		Log.Information("Gprc server started at port: {0}", Port);
 	}
 
 	public async Task StopAsync(TimeSpan? timeout = null)

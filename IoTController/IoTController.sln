@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTController", "IoTController\IoTController.csproj", "{AFECEB93-D5D1-4748-9368-2BF17C4969D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerServer", "ControllerServer\ControllerServer.csproj", "{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFECEB93-D5D1-4748-9368-2BF17C4969D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFECEB93-D5D1-4748-9368-2BF17C4969D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFECEB93-D5D1-4748-9368-2BF17C4969D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFECEB93-D5D1-4748-9368-2BF17C4969D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
