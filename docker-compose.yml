@@ -20,6 +20,17 @@ services:
     networks:
       - my_network
 
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata6:/data/db
+    networks:
+      - my_network
+
+volumes:
+  dbdata6:
 
 networks:
   my_network:
