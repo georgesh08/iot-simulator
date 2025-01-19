@@ -15,7 +15,7 @@ public class GrpcControllerServer
     {
         grpcServer = new Server
         {
-            Ports = { new ServerPort("127.0.0.1", Port, ServerCredentials.Insecure) }
+            Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
         };
 
         iotControllerService = new IoTControllerService();

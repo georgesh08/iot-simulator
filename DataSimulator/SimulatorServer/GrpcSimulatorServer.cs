@@ -11,14 +11,14 @@ public class GrpcSimulatorServer
 	
 	private readonly IoTDeviceService ioTDeviceService;
 
-	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
+	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period, string controllerHost)
 	{
 		grpcServer = new Server
 		{
-			Ports = { new ServerPort("127.0.0.1", Port, ServerCredentials.Insecure) }
+			Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
 		};
 		
-		ioTDeviceService = new IoTDeviceService(period)
+		ioTDeviceService = new IoTDeviceService(period, controllerHost)
 		{
 			DevicesToRegister = devices
 		};
