@@ -6,6 +6,6 @@ WORKDIR /DataSimulator
 
 COPY DataSimulator/bin/Release/net8.0/publish /DataSimulator/
 
-EXPOSE 16848
+# EXPOSE 16848
 
 ENTRYPOINT ["dotnet","DataSimulator.dll"]

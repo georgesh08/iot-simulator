@@ -7,6 +7,6 @@ WORKDIR /IoTController
 
 COPY IoTController/bin/Release/net8.0/publish /IoTController/
 
-EXPOSE 18686
+# EXPOSE 18686
 
 ENTRYPOINT ["dotnet","IoTController.dll"]
