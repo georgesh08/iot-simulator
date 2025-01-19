@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IoTController", "IoTControl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerServer", "ControllerServer\ControllerServer.csproj", "{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageQuery", "MessageQuery\MessageQuery.csproj", "{12822E21-8CCE-4549-BB7F-B1727D212DFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7FDA7D6-8404-4860-AD9A-503F0B4FBF4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
