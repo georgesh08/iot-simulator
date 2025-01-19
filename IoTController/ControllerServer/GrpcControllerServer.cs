@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using IoTServer;
 using Serilog;
 
 namespace ControllerServer;
@@ -7,6 +8,8 @@ public class GrpcControllerServer
 {
     private const int Port = 18686;
     private readonly Server grpcServer;
+    
+    private IoTControllerService iotControllerService;
 
     public GrpcControllerServer()
     {
@@ -14,6 +17,10 @@ public class GrpcControllerServer
         {
             Ports = { new ServerPort("127.0.0.1", Port, ServerCredentials.Insecure) }
         };
+
+        iotControllerService = new IoTControllerService();
+        
+        grpcServer.Services.Add(IoTDeviceService.BindService(iotControllerService));
     }
     
     public void Start()
