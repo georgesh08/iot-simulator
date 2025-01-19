@@ -1,0 +1,26 @@
+services:
+  sim:
+    build:
+      context: ./DataSimulator  # Путь к директории с Dockerfile для app1
+    ports:
+      - "16848:16848"  # Открываем порт 16848 для доступа извне
+    command: ["1", "1", "iot-simulator-iot-1"]
+    stdin_open: true  # эквивалент -i
+    tty: true         # эквивалент -t
+    networks:
+      - my_network
+
+  iot:
+    build:
+      context: ./IoTController  # Путь к директории с Dockerfile для app2
+    ports:
+      - "18686:18686"  # Открываем порт 18686 для доступа извне
+    stdin_open: true  # эквивалент -i
+    tty: true         # эквивалент -t
+    networks:
+      - my_network
+
+
+networks:
+  my_network:
+    driver: bridge
