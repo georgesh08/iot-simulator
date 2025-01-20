@@ -16,18 +16,6 @@ internal class Program
 			return;
 		}
 		
-		string controllerHost;
-		if (args.Length == 3)
-		{
-			controllerHost = args[2];
-			Log.Information("Use provided controller host: {0}", controllerHost);
-		}
-		else
-		{
-			controllerHost = "localhost";
-			Log.Information("Use localhost as controller host");
-		}
-		
 		Log.Information("Starting data simulation");
 		
 		var numberOfDevices = Convert.ToInt32(args[0]);
@@ -38,7 +26,7 @@ internal class Program
 		
 		var dataSimulator = new DataSimulator();
 		
-		dataSimulator.LaunchSimulator(numberOfDevices, dataSendPeriod, controllerHost);
+		dataSimulator.LaunchSimulator(numberOfDevices, dataSendPeriod);
 
 		Console.WriteLine("Press any key to exit...");
 

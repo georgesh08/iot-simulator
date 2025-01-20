@@ -20,12 +20,22 @@ public class IoTDeviceService
 	private PeriodicalScheduler dataSenderScheduler;
 	private PeriodicalScheduler connectionScheduler;
 	
-	private string ioTControllerHost;
-	private const int HostPort = 18686;
+	private string connectionString;
 
-	public IoTDeviceService(int period, string controllerHost)
+	private string controllerHost;
+	private int controllerPort;
+
+	public IoTDeviceService(int period)
 	{
-		ioTControllerHost = $"http://{controllerHost}:{HostPort}";
+		controllerPort = Environment.GetEnvironmentVariable("CONTROLLER_PORT") != null
+			? Convert.ToInt32(Environment.GetEnvironmentVariable("CONTROLLER_PORT"))
+			: 18686;
+		
+		controllerHost = Environment.GetEnvironmentVariable("CONTROLLER_HOST") != null
+			? Environment.GetEnvironmentVariable("CONTROLLER_HOST")
+			: "localhost";
+		
+		connectionString = $"http://{controllerHost}:{controllerPort}";
 		
 		connectionScheduler = new PeriodicalScheduler(TryConnect, TimeSpan.FromSeconds(5));
 		dataSenderScheduler = new PeriodicalScheduler(SendUpdate, TimeSpan.FromSeconds(period));
@@ -47,7 +57,7 @@ public class IoTDeviceService
 
 	private void TryConnect()
 	{
-		channel ??= GrpcChannel.ForAddress(ioTControllerHost);
+		channel ??= GrpcChannel.ForAddress(connectionString);
 
 		client ??= new IoTServer.IoTDeviceService.IoTDeviceServiceClient(channel);
 

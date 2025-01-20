@@ -6,19 +6,23 @@ namespace SimulatorServer;
 
 public class GrpcSimulatorServer
 {
-	private const int Port = 16848;
+	private int port;
 	private readonly Server grpcServer;
 	
 	private readonly IoTDeviceService ioTDeviceService;
 
-	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period, string controllerHost)
+	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
 	{
+		port = Environment.GetEnvironmentVariable("GRPC_SERVER_PORT") != null
+			? Convert.ToInt32(Environment.GetEnvironmentVariable("GRPC_SERVER_PORT"))
+			: 16848;
+		
 		grpcServer = new Server
 		{
-			Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
+			Ports = { new ServerPort("0.0.0.0", port, ServerCredentials.Insecure) }
 		};
 		
-		ioTDeviceService = new IoTDeviceService(period, controllerHost)
+		ioTDeviceService = new IoTDeviceService(period)
 		{
 			DevicesToRegister = devices
 		};
@@ -31,7 +35,7 @@ public class GrpcSimulatorServer
 		grpcServer.Start();
 		ioTDeviceService.Start();
 		
-		Log.Information("Gprc server started at port: {0}", Port);
+		Log.Information("Gprc server started at port: {0}", port);
 	}
 
 	public async Task StopAsync(TimeSpan? timeout = null)
