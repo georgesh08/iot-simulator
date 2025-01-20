@@ -45,6 +45,7 @@ public class RuleEngine
 
     public void Start()
     {
+	    continuousRulesScheduler.Start();
 	    var consumer = new EventingBasicConsumer(channel);
 	    consumer.Received += (sender, args) =>
 	    {
@@ -65,10 +66,10 @@ public class RuleEngine
 			    {
 				    devices.Add(message);
 			    }
-		    }
-		    else
-		    {
-			    lastValues[id] = [message];
+			    else
+			    {
+				    lastValues[id] = [message];
+			    }
 		    }
 	    };
 	    
@@ -88,11 +89,17 @@ public class RuleEngine
 		    res.DeviceId = pair.Key.ToString();
 		    PublishAnalysisResult(settings.ContinuousAnalysisQueue, res);
 	    }
+
+	    foreach (var pair in lastValues)
+	    {
+		    pair.Value.Clear();
+	    }
     }
     
     private void ProcessInstantRules(DeviceMessage message)
     {
 	    var verdict = DeviceDataProcessor.ProcessDeviceData(message);
+	    verdict.DeviceId = message.DeviceId;
 	    PublishAnalysisResult(settings.InstantAnalysisQueue, verdict);
     }
     
