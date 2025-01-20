@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\..\proto\*.proto" />
+        <Protobuf Include="..\..\proto\IoTDeviceService.proto" />
     </ItemGroup>
 
     <ItemGroup>
@@ -16,6 +16,11 @@
       <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
       <PackageReference Include="Grpc.Tools" Version="2.69.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MessageQuery\MessageQuery.csproj" />
+      <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
 </Project>
