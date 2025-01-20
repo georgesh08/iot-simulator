@@ -1,32 +1,62 @@
 services:
   sim:
+    container_name: sim
     build:
-      context: ./DataSimulator  # Путь к директории с Dockerfile для app1
+      context: ./DataSimulator  
+    environment:
+      GRPC_SERVER_PORT: 16868
+      CONTROLLER_PORT: 18686
+      CONTROLLER_HOST: iot
     ports:
-      - "16848:16848"  # Открываем порт 16848 для доступа извне
-    command: ["1", "1", "iot-simulator-iot-1"]
-    stdin_open: true  # эквивалент -i
-    tty: true         # эквивалент -t
+      - 16848:16848  
+    command: ["1", "1", "iot"]
+    stdin_open: true  
+    tty: true         
     networks:
       - my_network
 
   iot:
+    container_name: iot
     build:
-      context: ./IoTController  # Путь к директории с Dockerfile для app2
+      context: ./IoTController  
+    environment:
+      GRPC_SERVER_PORT: 18686
+      RABBITMQ_HOSTNAME: rmq
     ports:
-      - "18686:18686"  # Открываем порт 18686 для доступа извне
-    stdin_open: true  # эквивалент -i
-    tty: true         # эквивалент -t
+      - 18686:18686  
+    stdin_open: true 
+    tty: true         
+    networks:
+      - my_network
+
+  rule:
+    container_name: rule
+    build:
+      context: ./RuleEngine  
+    environment:
+      RABBITMQ_HOSTNAME: rmq
+    stdin_open: true 
+    tty: true         
+    networks:
+      - my_network
+
+  rabbitmq:
+    container_name: rmq
+    image: rabbitmq:management
+    ports:
+      - 5672:5672
+      - 15672:15672
     networks:
       - my_network
 
   mongodb:
+    container_name: db
     image: mongo:6-jammy
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
-      - '27017:27017'
+      - 27017:27017
     volumes:
       - dbdata6:/data/db
     networks:
