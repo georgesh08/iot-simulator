@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControllerServer", "Control
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageQuery", "MessageQuery\MessageQuery.csproj", "{12822E21-8CCE-4549-BB7F-B1727D212DFD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Utils\Utils.csproj", "{44D7D8A5-3FED-4D61-8417-2B8781C258B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12822E21-8CCE-4549-BB7F-B1727D212DFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44D7D8A5-3FED-4D61-8417-2B8781C258B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44D7D8A5-3FED-4D61-8417-2B8781C258B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44D7D8A5-3FED-4D61-8417-2B8781C258B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44D7D8A5-3FED-4D61-8417-2B8781C258B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
