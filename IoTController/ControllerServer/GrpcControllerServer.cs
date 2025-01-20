@@ -6,16 +6,20 @@ namespace ControllerServer;
 
 public class GrpcControllerServer
 {
-    private const int Port = 18686;
+    private int port;
     private readonly Server grpcServer;
     
     private IoTControllerService iotControllerService;
 
     public GrpcControllerServer()
     {
+	    port = Environment.GetEnvironmentVariable("GRPC_SERVER_PORT") != null
+		    ? Convert.ToInt32(Environment.GetEnvironmentVariable("GRPC_SERVER_PORT"))
+		    : 18686;
+	    
         grpcServer = new Server
         {
-            Ports = { new ServerPort("0.0.0.0", Port, ServerCredentials.Insecure) }
+            Ports = { new ServerPort("0.0.0.0", port, ServerCredentials.Insecure) }
         };
 
         iotControllerService = new IoTControllerService();
@@ -29,7 +33,7 @@ public class GrpcControllerServer
 		
         grpcServer.Start();
 		
-        Log.Information("Gprc server started at port: {0}.", Port);
+        Log.Information("Gprc server started at port: {0}.", port);
     }
     
     public async Task StopAsync(TimeSpan? timeout = null)
