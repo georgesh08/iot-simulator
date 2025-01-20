@@ -6,25 +6,28 @@ public class DeviceDataProcessor
 {
 	public static RuleEngineResult ProcessDeviceData(List<DeviceMessage> data)
 	{
-		var dataType = data.First().Value.ValueCase;
-		var values = data.Select(v => v.Value);
+		var converted = data.Select(x => ConvertFromByteString(x.Value)).ToList();
+		
+		var dataType = converted.First().ValueCase;
 
 		return dataType switch
 		{
-			DeviceProducedValue.ValueOneofCase.DummyValue => ProcessDummyValues(values),
-			DeviceProducedValue.ValueOneofCase.SensorValue => ProcessSensorValues(values),
+			DeviceProducedValue.ValueOneofCase.DummyValue => ProcessDummyValues(converted),
+			DeviceProducedValue.ValueOneofCase.SensorValue => ProcessSensorValues(converted),
 			_ => new RuleEngineResult { EngineVerdict = Status.Error, Message = "Unknown device type." }
 		};
 	}
 
 	public static RuleEngineResult ProcessDeviceData(DeviceMessage data)
 	{
-		var dataType = data.Value.ValueCase;
+		var value = ConvertFromByteString(data.Value);
+		
+		var dataType = value.ValueCase;
 		
 		return dataType switch
 		{
-			DeviceProducedValue.ValueOneofCase.DummyValue => ProcessDummyValue(data.Value),
-			DeviceProducedValue.ValueOneofCase.SensorValue => ProcessSensorValue(data.Value),
+			DeviceProducedValue.ValueOneofCase.DummyValue => ProcessDummyValue(value),
+			DeviceProducedValue.ValueOneofCase.SensorValue => ProcessSensorValue(value),
 			_ => new RuleEngineResult { EngineVerdict = Status.Error, Message = "Unknown device type." }
 		};
 	}
@@ -105,5 +108,14 @@ public class DeviceDataProcessor
 		return checkSum is <= 0 or > 200_000 
 			? new RuleEngineResult { EngineVerdict = Status.Error, Message = "Invalid checksum." } 
 			: new RuleEngineResult { EngineVerdict = Status.Ok, Message = "Device data is valid." };
+	}
+
+	private static DeviceProducedValue ConvertFromByteString(string data)
+	{
+		var byteValue = Convert.FromBase64String(data);
+		
+		using var memoryStream = new MemoryStream(byteValue);
+		
+		return DeviceProducedValue.Parser.ParseFrom(memoryStream);
 	}
 }
