@@ -33,6 +33,7 @@ public class DataSimulator
 			if (createdDevice != null)
 			{
 				devices.Add(createdDevice);
+				createdDevice.Start();
 			} 
 		}
 
