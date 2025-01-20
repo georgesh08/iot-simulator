@@ -28,17 +28,25 @@ public class RuleEngine
         {
 	        HostName = this.settings.HostName
         };
-		
-        connection = factory.CreateConnection();
-        channel = connection.CreateModel();
         
-        channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
+        try
+        {
+	        connection = factory.CreateConnection();
+	        channel = connection.CreateModel();
+        
+	        channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
 
-        channel.QueueDeclare(this.settings.InstantAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
-        channel.QueueDeclare(this.settings.ContinuousAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
+	        channel.QueueDeclare(this.settings.InstantAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
+	        channel.QueueDeclare(this.settings.ContinuousAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
         
-        channel.QueueBind(this.settings.InstantAnalysisQueue, this.settings.ExchangeName, this.settings.InstantAnalysisQueue);
-        channel.QueueBind(this.settings.ContinuousAnalysisQueue, this.settings.ExchangeName, this.settings.ContinuousAnalysisQueue);
+	        channel.QueueBind(this.settings.InstantAnalysisQueue, this.settings.ExchangeName, this.settings.InstantAnalysisQueue);
+	        channel.QueueBind(this.settings.ContinuousAnalysisQueue, this.settings.ExchangeName, this.settings.ContinuousAnalysisQueue);
+        }
+        
+        catch (Exception e)
+        {
+	        Log.Error("Couldn't establish connection to RabbitMQ service. Exception: {0}", e.Message);
+        }
         
         continuousRulesScheduler = new PeriodicalScheduler(ProcessContinuousRules, TimeSpan.FromSeconds(10));
     }

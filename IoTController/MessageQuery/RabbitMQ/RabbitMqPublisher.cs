@@ -20,13 +20,20 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 		{
 			HostName = this.settings.HostName
 		};
-		
-		connection = factory.CreateConnection();
-		channel = connection.CreateModel();
-		
-		channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
-		channel.QueueDeclare(this.settings.DeviceQueue, durable: true, exclusive: false, autoDelete: false);
-		channel.QueueBind(this.settings.DeviceQueue, this.settings.ExchangeName, this.settings.RoutingKey);
+
+		try
+		{
+			connection = factory.CreateConnection();
+			channel = connection.CreateModel();
+
+			channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
+			channel.QueueDeclare(this.settings.DeviceQueue, durable: true, exclusive: false, autoDelete: false);
+			channel.QueueBind(this.settings.DeviceQueue, this.settings.ExchangeName, this.settings.RoutingKey);
+		}
+		catch (Exception e)
+		{
+			Log.Error("Couldn't establish connection to RabbitMQ service. Exception: {0}", e.Message);
+		}
 	}
 
 	public void SubscribeToAnalysisResults()
