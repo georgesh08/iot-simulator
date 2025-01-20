@@ -80,7 +80,7 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 		{
 			if (channel is not { IsOpen: true })
 			{
-				throw new InvalidOperationException("Канал RabbitMQ не доступен.");
+				throw new InvalidOperationException("RabbitMQ channel unavailable.");
 			}
 
 			var messageBody = JsonConvert.SerializeObject(message);
