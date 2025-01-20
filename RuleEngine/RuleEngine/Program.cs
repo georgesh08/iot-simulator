@@ -12,7 +12,7 @@ internal class Program
         
         var ruleEngine = new RuleEngine();
         
-        ruleEngine.Run();
+        ruleEngine.Start();
         
         Console.WriteLine("Press any key to exit...");
 
