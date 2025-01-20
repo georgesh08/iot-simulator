@@ -50,8 +50,8 @@ public class DeviceDataProcessor
 			return new RuleEngineResult { EngineVerdict = Status.Error, Message = "Device data out of bounds." };
 		}
 
-		return data.Value1 + data.Value2 < 20533 
-			? new RuleEngineResult { EngineVerdict = Status.Error, Message = "Invalid checksum" } 
+		return data.Value1 + data.Value2 < 4000 
+			? new RuleEngineResult { EngineVerdict = Status.Error, Message = "Invalid checksum." } 
 			: new RuleEngineResult { EngineVerdict = Status.Ok, Message = "Device data is valid." };
 	}
 	
@@ -81,8 +81,8 @@ public class DeviceDataProcessor
 		foreach (var value in values)
 		{
 			var data = value.DummyValue;
-			checkSum += data.Value1;
-			checkSum -= data.Value2;
+			checkSum -= data.Value1;
+			checkSum += data.Value2;
 		}
 
 		return checkSum is <= 0 or > 100_000 
