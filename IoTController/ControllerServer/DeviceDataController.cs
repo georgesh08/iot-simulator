@@ -1,4 +1,5 @@
-﻿using IoTServer;
+﻿using Google.Protobuf;
+using IoTServer;
 using MessageQuery;
 using MessageQuery.RabbitMQ;
 using Utils;
@@ -24,10 +25,12 @@ public class DeviceDataController
 
 	private DeviceMessage GetDeviceMessage(Guid deviceId, DeviceProducedValue value)
 	{
+		var bytes = value.ToByteArray();
+		var res = Convert.ToBase64String(bytes);
 		return new DeviceMessage
 		{
 			DeviceId = deviceId.ToString(),
-			Value = value,
+			Value = res,
 			Timestamp = TimestampConverter.ConvertToTimestamp(DateTime.UtcNow),
 		};
 	}
