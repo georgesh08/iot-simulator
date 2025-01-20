@@ -37,6 +37,9 @@ public class RuleEngine
         channel.QueueDeclare(this.settings.InstantAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
         channel.QueueDeclare(this.settings.ContinuousAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
         
+        channel.QueueBind(this.settings.InstantAnalysisQueue, this.settings.ExchangeName, this.settings.InstantAnalysisQueue);
+        channel.QueueBind(this.settings.ContinuousAnalysisQueue, this.settings.ExchangeName, this.settings.ContinuousAnalysisQueue);
+        
         continuousRulesScheduler = new PeriodicalScheduler(ProcessContinuousRules, TimeSpan.FromSeconds(10));
     }
 
