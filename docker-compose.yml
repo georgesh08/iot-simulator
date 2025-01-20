@@ -20,6 +20,20 @@ services:
     networks:
       - my_network
 
+  mongodb:
+    image: mongo:6-jammy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata6:/data/db
+    networks:
+      - my_network
+
+volumes:
+  dbdata6:
 
 networks:
   my_network:
