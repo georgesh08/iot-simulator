@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
+using Serilog;
 
 namespace MessageQuery.RabbitMQ;
 
@@ -8,36 +9,47 @@ public class RabbitMQPublisher : IMessagePublisher, IDisposable
 {
 	private IConnection connection;
 	private IModel channel;
-	private const string ExchangeName = "iot.device.data";
-	private const string QueueName = "device_data";
-	private const string RoutingKey = "device.data";
-	private readonly string hostname;
+	private readonly RabbitMqSettings settings;
 
-	public RabbitMQPublisher()
+	public RabbitMQPublisher(RabbitMqSettings? settings = null)
 	{
-		hostname = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? "localhost";
+		this.settings = settings ?? new RabbitMqSettings();
 		
 		var factory = new ConnectionFactory
 		{
-			HostName = hostname
+			HostName = this.settings.HostName
 		};
 		
 		connection = factory.CreateConnection();
 		channel = connection.CreateModel();
 		
-		channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct, durable: true);
-		channel.QueueDeclare(QueueName, durable: true, exclusive: false, autoDelete: false);
-		channel.QueueBind(QueueName, ExchangeName, RoutingKey);
+		channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
+		channel.QueueDeclare(this.settings.DeviceQueue, durable: true, exclusive: false, autoDelete: false);
+		channel.QueueBind(this.settings.DeviceQueue, this.settings.ExchangeName, this.settings.RoutingKey);
 	}
 	
 	public async Task PublishDeviceDataAsync(DeviceMessage message)
 	{
-		var messageBody = JsonConvert.SerializeObject(message);
-		var body = Encoding.UTF8.GetBytes(messageBody);
+		try
+		{
+			if (channel is not { IsOpen: true })
+			{
+				throw new InvalidOperationException("Канал RabbitMQ не доступен.");
+			}
 
-		var properties = CreateProps();
-		
-		channel.BasicPublish(ExchangeName, RoutingKey, properties, body);
+			var messageBody = JsonConvert.SerializeObject(message);
+			var body = Encoding.UTF8.GetBytes(messageBody);
+
+			var properties = CreateProps();
+
+			channel.BasicPublish(settings.ExchangeName, settings.RoutingKey, properties, body);
+
+			await Task.CompletedTask;
+		}
+		catch (Exception ex)
+		{
+			Log.Error("[{0}] Error on message sending: {1}", ToString(), ex.Message);
+		}
 	}
 	
 	public void Dispose()
