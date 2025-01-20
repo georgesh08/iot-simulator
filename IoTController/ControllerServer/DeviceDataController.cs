@@ -7,11 +7,12 @@ namespace ControllerServer;
 
 public class DeviceDataController
 {
-	private RabbitMQPublisher publisher;
+	private RabbitMqPublisher publisher;
 	
 	public DeviceDataController()
 	{
-		publisher = new RabbitMQPublisher();
+		publisher = new RabbitMqPublisher();
+		publisher.SubscribeToAnalysisResults();
 	}
 
 	public async Task ProcessMessage(Guid deviceId, DeviceProducedValue message)

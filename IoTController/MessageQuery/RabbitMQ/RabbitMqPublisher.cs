@@ -1,17 +1,18 @@
 ﻿using System.Text;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using Serilog;
 
 namespace MessageQuery.RabbitMQ;
 
-public class RabbitMQPublisher : IMessagePublisher, IDisposable
+public class RabbitMqPublisher : IMessagePublisher, IDisposable
 {
 	private IConnection connection;
 	private IModel channel;
 	private readonly RabbitMqSettings settings;
 
-	public RabbitMQPublisher(RabbitMqSettings? settings = null)
+	public RabbitMqPublisher(RabbitMqSettings? settings = null)
 	{
 		this.settings = settings ?? new RabbitMqSettings();
 		
@@ -26,6 +27,51 @@ public class RabbitMQPublisher : IMessagePublisher, IDisposable
 		channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
 		channel.QueueDeclare(this.settings.DeviceQueue, durable: true, exclusive: false, autoDelete: false);
 		channel.QueueBind(this.settings.DeviceQueue, this.settings.ExchangeName, this.settings.RoutingKey);
+	}
+
+	public void SubscribeToAnalysisResults()
+	{
+		var instantConsumer = new EventingBasicConsumer(channel);
+		var continuousConsumer = new EventingBasicConsumer(channel);
+
+		instantConsumer.Received += (sender, args) =>
+		{
+			var body = args.Body.ToArray();
+			var message = Encoding.UTF8.GetString(body);
+			
+			var result = JsonConvert.DeserializeObject<RuleEngineResult>(message);
+			if (result == null)
+			{
+				Log.Error("Invalid message received for instant rule");
+				return;
+			}
+			
+			Log.Information("Received instant rule result for device {0}. Engine message: {1}. Verdict - {2}", 
+				result.DeviceId, 
+				result.Message,
+				result.EngineVerdict);
+		};
+
+		channel.BasicConsume(settings.InstantAnalysisQueue, true, instantConsumer);
+		
+		continuousConsumer.Received += (sender, args) =>
+		{
+			var body = args.Body.ToArray();
+			var message = Encoding.UTF8.GetString(body);
+			
+			var result = JsonConvert.DeserializeObject<RuleEngineResult>(message);
+			if (result == null)
+			{
+				Log.Error("Invalid message received for instant rule");
+				return;
+			}
+			
+			Log.Information("Received continuous rule result for device {0}. Engine message: {1}. Verdict - {2}", 
+				result.DeviceId, 
+				result.Message,
+				result.EngineVerdict);
+		};
+		channel.BasicConsume(settings.ContinuousAnalysisQueue, autoAck: true, continuousConsumer);
 	}
 	
 	public async Task PublishDeviceDataAsync(DeviceMessage message)
