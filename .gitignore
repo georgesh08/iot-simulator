@@ -4,6 +4,8 @@
 # Rider
 /**/.idea
 
+/**/.vs
+
 # User-specific files
 *.suo
 *.user
