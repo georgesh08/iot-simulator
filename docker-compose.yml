@@ -1,40 +1,71 @@
+version: "3.9"
 services:
   sim:
+    container_name: simulator
     build:
-      context: ./DataSimulator  # Путь к директории с Dockerfile для app1
-    ports:
-      - "16848:16848"  # Открываем порт 16848 для доступа извне
-    command: ["1", "1", "iot-simulator-iot-1"]
-    stdin_open: true  # эквивалент -i
-    tty: true         # эквивалент -t
+      context: .
+      dockerfile: Dockerfile.simulator
+    environment:
+      GRPC_SERVER_PORT: 16868
+      CONTROLLER_PORT: 18686
+      CONTROLLER_HOST: controller
+    command: ["5", "2"]
+    stdin_open: true
     networks:
-      - my_network
-
+      - app_network
+  
   iot:
+    container_name: controller
     build:
-      context: ./IoTController  # Путь к директории с Dockerfile для app2
-    ports:
-      - "18686:18686"  # Открываем порт 18686 для доступа извне
-    stdin_open: true  # эквивалент -i
-    tty: true         # эквивалент -t
+      context: .
+      dockerfile: Dockerfile.controller
+    environment:
+      GRPC_SERVER_PORT: 18686
+      RABBITMQ_HOSTNAME: rabbitmq
+    stdin_open: true
     networks:
-      - my_network
+      - app_network
+  
+  ruleengine:
+    container_name: engine
+    build:
+      context: . 
+      dockerfile: Dockerfile.engine
+    environment:
+        RABBITMQ_HOSTNAME: rabbitmq
+        RABBITMQ_HOSTPORT: 5672
+    stdin_open: true
+    networks:
+      - app_network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # Default RabbitMQ port
+      - "15672:15672" # Management console port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app_network
+  
   mongodb:
+    container_name: db
     image: mongo:6-jammy
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
     ports:
-      - '27017:27017'
+      - 27017:27017
     volumes:
       - dbdata6:/data/db
     networks:
-      - my_network
+      - app_network
 
 volumes:
   dbdata6:
 
 networks:
-  my_network:
+  app_network:
     driver: bridge
