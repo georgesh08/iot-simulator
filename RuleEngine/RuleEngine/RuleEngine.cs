@@ -24,35 +24,19 @@ public class RuleEngine
         this.settings = settings ?? new RabbitMqSettings();
         lastValues = new ConcurrentDictionary<Guid, List<DeviceMessage>>();
         
-        var factory = new ConnectionFactory
-        {
-	        HostName = this.settings.HostName
-        };
-        
-        try
-        {
-	        connection = factory.CreateConnection();
-	        channel = connection.CreateModel();
-        
-	        channel.ExchangeDeclare(this.settings.ExchangeName, ExchangeType.Direct, durable: true);
-
-	        channel.QueueDeclare(this.settings.InstantAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
-	        channel.QueueDeclare(this.settings.ContinuousAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
-        
-	        channel.QueueBind(this.settings.InstantAnalysisQueue, this.settings.ExchangeName, this.settings.InstantAnalysisQueue);
-	        channel.QueueBind(this.settings.ContinuousAnalysisQueue, this.settings.ExchangeName, this.settings.ContinuousAnalysisQueue);
-        }
-        
-        catch (Exception e)
-        {
-	        Log.Error("Couldn't establish connection to RabbitMQ service. Exception: {0}", e.Message);
-        }
-        
         continuousRulesScheduler = new PeriodicalScheduler(ProcessContinuousRules, TimeSpan.FromSeconds(10));
     }
 
     public void Start()
     {
+	    if (!TryStartRabbitMQService())
+	    {
+		    Log.Error("Failed to start RabbitMQ service");
+		    return;
+	    }
+	    
+	    Log.Information("Successfully started RabbitMQ service");
+	    
 	    continuousRulesScheduler.Start();
 	    var consumer = new EventingBasicConsumer(channel);
 	    consumer.Received += (sender, args) =>
@@ -82,6 +66,37 @@ public class RuleEngine
 	    };
 	    
 	    channel.BasicConsume(settings.DeviceQueue, autoAck: true, consumer);
+    }
+    
+    private bool TryStartRabbitMQService()
+    {
+	    var factory = new ConnectionFactory
+	    {
+		    HostName = settings.HostName,
+		    Port = settings.HostPort
+	    };
+        
+	    try
+	    {
+		    Log.Information("Connecting to RabbitMQ service with host [{0}] and port {1}", settings.HostName, settings.HostPort);
+		    connection = factory.CreateConnection();
+		    channel = connection.CreateModel();
+        
+		    channel.ExchangeDeclare(settings.ExchangeName, ExchangeType.Direct, durable: true);
+
+		    channel.QueueDeclare(settings.InstantAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
+		    channel.QueueDeclare(settings.ContinuousAnalysisQueue, durable: true, exclusive: false, autoDelete: false);
+        
+		    channel.QueueBind(settings.InstantAnalysisQueue, settings.ExchangeName, settings.InstantAnalysisQueue);
+		    channel.QueueBind(settings.ContinuousAnalysisQueue, settings.ExchangeName, settings.ContinuousAnalysisQueue);
+		    return true;
+	    }
+        
+	    catch (Exception e)
+	    {
+		    Log.Error("Couldn't establish connection to RabbitMQ service. Exception: {0}", e.Message);
+		    return false;
+	    }
     }
 
     private void ProcessContinuousRules()
