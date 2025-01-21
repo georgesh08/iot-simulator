@@ -4,6 +4,7 @@ using MessageQuery.RabbitMQ;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RuleEngine.Processor;
 using Serilog;
 using Utils;
 
