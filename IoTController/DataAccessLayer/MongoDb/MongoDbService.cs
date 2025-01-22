@@ -7,20 +7,38 @@ public class MongoDbService : IDatabaseService
 {
 	private readonly IMongoCollection<DbDevice> _devices;
 	private readonly IMongoCollection<DeviceDataResult> _deviceData;
+
+	public MongoDbService()
+	{
+		var settings = new MongoDbSettings
+		{
+			Host = Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "localhost",
+			Port = int.Parse(Environment.GetEnvironmentVariable("MONGODB_PORT") ?? "27017"),
+			Database = Environment.GetEnvironmentVariable("MONGODB_DATABASE") ?? "DevicesDb",
+			User = Environment.GetEnvironmentVariable("MONGODB_USER"),
+			Password = Environment.GetEnvironmentVariable("MONGODB_PASSWORD")
+		};
+		
+		var client = new MongoClient(settings.ConnectionString);
+		var database = client.GetDatabase(settings.Database);
+		_devices = database.GetCollection<DbDevice>("Devices");
+		_deviceData = database.GetCollection<DeviceDataResult>("DeviceData");
+	}
 	
-	public async Task<bool> DeviceExistsAsync(string name)
+	public async Task<DbDevice?> DeviceExistsAsync(string name)
 	{
-		var device = await _devices.Find(x => x.Name == name).FirstOrDefaultAsync();
-		return device != null;
+		return await _devices.Find(x => x.Name == name).FirstOrDefaultAsync();
 	}
 
-	public Task<DbDevice> CreateDeviceAsync(DbDevice device)
+	public async Task<DbDevice> CreateDeviceAsync(DbDevice device)
 	{
-		throw new NotImplementedException();
+		await _devices.InsertOneAsync(device);
+		return device;
 	}
 
-	public Task<DeviceDataResult> SaveDeviceDataRecordAsync(DeviceDataResult record)
+	public async Task<DeviceDataResult> SaveDeviceDataRecordAsync(DeviceDataResult result)
 	{
-		throw new NotImplementedException();
+		await _deviceData.InsertOneAsync(result);
+		return result;
 	}
 }
