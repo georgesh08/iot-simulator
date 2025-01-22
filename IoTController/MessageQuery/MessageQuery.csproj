@@ -21,4 +21,9 @@
       <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\DataAccessLayer\DataAccessLayer.csproj" />
+      <ProjectReference Include="..\Utils\Utils.csproj" />
+    </ItemGroup>
+
 </Project>

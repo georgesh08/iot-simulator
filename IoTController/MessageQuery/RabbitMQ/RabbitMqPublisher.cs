@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using DataAccessLayer;
+using DataAccessLayer.Models;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Serilog;
+using Utils;
 
 namespace MessageQuery.RabbitMQ;
 
@@ -11,8 +14,10 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 	private IConnection connection;
 	private IModel channel;
 	private readonly RabbitMqSettings settings;
+	
+	private readonly IDatabaseService databaseService;
 
-	public RabbitMqPublisher(RabbitMqSettings? settings = null)
+	public RabbitMqPublisher(IDatabaseService dbService, RabbitMqSettings? settings = null)
 	{
 		this.settings = settings ?? new RabbitMqSettings();
 		
@@ -20,6 +25,8 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 		{
 			HostName = this.settings.HostName
 		};
+
+		databaseService = dbService;
 
 		try
 		{
@@ -57,6 +64,11 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 				result.DeviceId, 
 				result.Message,
 				result.EngineVerdict);
+
+			var res = CreateResult(result);
+			res.RuleType = RuleType.Instant;
+			
+			databaseService.SaveDeviceDataRecordAsync(res);
 		};
 
 		channel.BasicConsume(settings.InstantAnalysisQueue, true, instantConsumer);
@@ -77,7 +89,13 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 				result.DeviceId, 
 				result.Message,
 				result.EngineVerdict);
+			
+			var res = CreateResult(result);
+			res.RuleType = RuleType.Continuous;
+			
+			databaseService.SaveDeviceDataRecordAsync(res);
 		};
+		
 		channel.BasicConsume(settings.ContinuousAnalysisQueue, autoAck: true, continuousConsumer);
 	}
 	
@@ -119,5 +137,17 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 		properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 		
 		return properties;
+	}
+
+	private DeviceDataResult CreateResult(RuleEngineResult result)
+	{
+		return new DeviceDataResult
+		{
+			Id = Guid.NewGuid(),
+			DeviceId = result.DeviceId,
+			ResponseTimestamp = TimestampConverter.ConvertToTimestamp(DateTime.UtcNow),
+			Verdict = result.EngineVerdict == Status.Ok ? ProcessingVerdict.Ok : ProcessingVerdict.Error,
+			VerdictMessage = result.Message
+		};
 	}
 }
