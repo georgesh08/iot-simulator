@@ -6,8 +6,8 @@ namespace DataAccessLayer.Models;
 public class DbDevice
 {
 	[BsonId]
-	[BsonRepresentation(BsonType.ObjectId)]
-	public string Id { get; set; }
+	[BsonRepresentation(BsonType.String)]
+	public Guid Id { get; set; }
     
 	public string Name { get; set; }
     
