@@ -1,4 +1,5 @@
-﻿using Google.Protobuf;
+﻿using DataAccessLayer;
+using Google.Protobuf;
 using IoTServer;
 using MessageQuery;
 using MessageQuery.RabbitMQ;
@@ -10,9 +11,9 @@ public class DeviceDataController
 {
 	private RabbitMqPublisher publisher;
 	
-	public DeviceDataController()
+	public DeviceDataController(IDatabaseService dbService)
 	{
-		publisher = new RabbitMqPublisher();
+		publisher = new RabbitMqPublisher(dbService);
 		publisher.SubscribeToAnalysisResults();
 	}
 

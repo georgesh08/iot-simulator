@@ -4,7 +4,7 @@ namespace DataAccessLayer;
 
 public interface IDatabaseService
 {
-	Task<bool> DeviceExistsAsync(string name);
+	Task<DbDevice?> DeviceExistsAsync(string name);
 	Task<DbDevice> CreateDeviceAsync(DbDevice device);
 	Task<DeviceDataResult> SaveDeviceDataRecordAsync(DeviceDataResult record);
 }
