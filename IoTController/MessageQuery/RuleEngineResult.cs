@@ -10,5 +10,6 @@ public class RuleEngineResult
 public enum Status
 {
 	Ok = 0,
-	Error = 1
+	Error = 1,
+	Warning = 2,
 }
