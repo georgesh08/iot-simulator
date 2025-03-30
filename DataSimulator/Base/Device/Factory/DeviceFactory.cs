@@ -4,16 +4,12 @@ namespace Base.Device.Factory;
 
 public class DeviceFactory
 {
-	private readonly Dictionary<IoTDeviceType, AIoTDeviceFactory> strategies;
-
-	public DeviceFactory()
+	private readonly Dictionary<IoTDeviceType, AIoTDeviceFactory> strategies = new()
 	{
-		strategies = new Dictionary<IoTDeviceType, AIoTDeviceFactory>
-		{
-			{ IoTDeviceType.SENSOR, new SensorDeviceFactory() },
-			{ IoTDeviceType.OTHER, new DummyDeviceFactory() }
-		};
-	}
+		{ IoTDeviceType.SENSOR, new SensorDeviceFactory() },
+		{ IoTDeviceType.OTHER, new DummyDeviceFactory() },
+		{ IoTDeviceType.INDUSTRIAL_SYSTEM, new IndustrialDeviceFactory() }
+	};
 
 	public ABaseIoTDevice? CreateDevice(IoTDeviceType deviceType)
 	{

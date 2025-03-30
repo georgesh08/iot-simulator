@@ -28,7 +28,9 @@ public class DataSimulator
 
 		for (var i = 1; i <= numberOfDevices; i++)
 		{
-			var createdDevice = deviceFactory.CreateDevice(i % 2 == 0 ? IoTDeviceType.SENSOR : IoTDeviceType.OTHER);
+			
+			var createdDevice = deviceFactory.CreateDevice(i % 2 == 0 ? IoTDeviceType.SENSOR 
+				: (i % 3 == 0 ? IoTDeviceType.OTHER : IoTDeviceType.INDUSTRIAL_SYSTEM));
 
 			if (createdDevice != null)
 			{
