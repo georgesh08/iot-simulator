@@ -3,12 +3,66 @@ syntax = "proto3";
 package IoTServer;
 
 enum DeviceType {
-    SENSOR = 0;
-    CAMERA = 1;
-    WEARABLE = 2;
-    LIGHTING = 3;
-    SECURITY = 4;
-    OTHER = 9;
+  SENSOR = 0;
+  CAMERA = 1;
+  WEARABLE = 2;
+  LIGHTING = 3;
+  SECURITY = 4;
+  INDUSTRIAL_SYSTEM = 5;
+  OTHER = 9;
+}
+
+enum DataQuality {
+  EXCELLENT = 0;
+  GOOD = 1;
+  AVERAGE = 2;
+  POOR = 3;
+  BAD = 4;
+  CORRUPTED = 5;
+}
+
+enum AlertLevel {
+  NONE = 0;
+  INFO = 1;
+  WARNING = 2;
+  CRITICAL = 3;
+  EMERGENCY = 4;
+}
+
+message EnvironmentalReadings {
+  float temperature = 1; // celsius
+  float humidity = 2; // percents
+  float pressure = 3; // pascals
+  float lightLevel = 4; // lux
+  float noiseLevel = 5; // db
+  DataQuality quality = 9;
+}
+
+message SystemHealth {
+  float cpuLoad = 1;
+  float memoryUsage = 2;
+  float storageUsage = 3;
+  float batteryLevel = 5;
+  uint64 uptime = 6;
+  repeated string activeProcesses = 7;
+  map<string, string> statusFlags = 8;
+}
+
+message Alert {
+  string alertId = 1;
+  AlertLevel level = 2;
+  string source = 3;
+  uint64 timestamp = 5;
+  bool acknowledged = 6;
+  map<string, string> metadata = 7;
+}
+
+message DiagnosticData {
+  map<string, string> systemParams = 1;
+  repeated string logs = 2;
+  repeated Alert warnings = 3;
+  bytes rawDiagnosticDump = 4;
+  SystemHealth health = 5;
 }
 
 message DummyDeviceData {
@@ -28,9 +82,22 @@ message IoTDevice {
   DeviceType type = 2;
 }
 
+message IndustrialSystemData {
+  string systemId = 1;
+  string systemName = 2;
+  EnvironmentalReadings environment = 3;
+  repeated string tags = 4;
+  uint32 errorCount = 5;
+  map<string, string> metadata = 6;
+  uint64 timestamp = 7;
+  SystemHealth systemHealth = 8;
+  DiagnosticData diagnostics = 9;
+}
+
 message DeviceProducedValue {
   oneof value {
     DummyDeviceData dummyValue = 1;
     SensorDeviceData sensorValue = 2;
+    IndustrialSystemData industrialDeviceValue = 3;
   }
 }
