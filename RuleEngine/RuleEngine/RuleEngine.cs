@@ -116,7 +116,11 @@ public class RuleEngine
 
 	    foreach (var pair in lastValues)
 	    {
-		    pair.Value.Clear();
+		    var value = pair.Value;
+		    if (value.Count > 30)
+		    {
+			    value.Clear();
+		    }
 	    }
     }
     

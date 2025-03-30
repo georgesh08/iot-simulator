@@ -34,6 +34,7 @@ public class DeviceDataProcessor
 		{
 			DeviceProducedValue.ValueOneofCase.DummyValue => new DummyValueProcessor(),
 			DeviceProducedValue.ValueOneofCase.SensorValue => new SensorValueProcessor(),
+			DeviceProducedValue.ValueOneofCase.IndustrialDeviceValue => new IndustrialSystemValueProcessor(),
 			_ => processorContext.Context
 		};
 
