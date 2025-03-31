@@ -1,4 +1,7 @@
-﻿using Serilog;
+﻿using System.Text.Json;
+using Base;
+using Serilog;
+using SimulatorServer;
 
 namespace DataSimulator;
 
@@ -10,6 +13,10 @@ internal class Program
 			.WriteTo.Console()
 			.CreateLogger();
 		
+		HttpClientWrapper httpWrapper = new();
+		
+		httpWrapper.AddServer("elk", "http://localhost:5044");
+		
 		if (args.Length < 2)
 		{
 			Log.Error("Invalid number of arguments. Should be at least two: <number of devices> <data send period>");
@@ -20,13 +27,22 @@ internal class Program
 		
 		var numberOfDevices = Convert.ToInt32(args[0]);
 		var dataSendPeriod = Convert.ToInt32(args[1]); // in seconds
+
+		var message = $"{numberOfDevices} devices will be generated, data sending period is {dataSendPeriod} seconds";
 		
-		Log.Information("{0} devices will be generated, data sending period is {1} seconds", 
-			numberOfDevices, dataSendPeriod);
+		Log.Information(message);
 		
 		var dataSimulator = new DataSimulator();
 		
 		dataSimulator.LaunchSimulator(numberOfDevices, dataSendPeriod);
+		
+		var messageToSend = "Data simulator has started" + message;
+
+		var logMessage = new LogMessage(Guid.NewGuid().ToString(), LogLevel.Info, messageToSend);
+		
+		var logString = JsonSerializer.Serialize(logMessage);
+		
+		httpWrapper.SendRequest("http://localhost:5044", HttpMethod.Post, logString);
 
 		Console.WriteLine("Press any key to exit...");
 
