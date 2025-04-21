@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  sim:
+  simulator:
     container_name: simulator
     build:
       context: .
@@ -14,7 +14,7 @@ services:
     networks:
       - app_network
   
-  iot:
+  controller:
     container_name: controller
     build:
       context: .
@@ -30,7 +30,7 @@ services:
       - app_network
   
   ruleengine:
-    container_name: engine
+    container_name: ruleengine
     build:
       context: . 
       dockerfile: Dockerfile.engine
@@ -54,7 +54,7 @@ services:
       - app_network
   
   mongodb:
-    container_name: db
+    container_name: mongodb
     image: mongo:6-jammy
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
@@ -68,7 +68,7 @@ services:
 
   elasticsearch:
     image: elasticsearch:8.16.6
-    container_name: es
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms750m -Xmx750m
@@ -109,7 +109,7 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin       
-      - GF_SECURITY_ADMIN_PASSWORD=admin   
+      - GF_SECURITY_ADMIN_PASSWORD=avpless1   
     volumes:
       - grafana-data:/var/lib/grafana       
     networks:
@@ -117,6 +117,7 @@ services:
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
