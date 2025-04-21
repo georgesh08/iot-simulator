@@ -15,7 +15,10 @@ internal class Program
         
         HttpClientWrapper httpWrapper = new();
 		
-        httpWrapper.AddServer("elk", "http://localhost:5044");
+		var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
+	    var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
+        		
+	    httpWrapper.AddServer("elk", $"http://{elkServer}:{elkPort}");
         
         ruleEngine.Start();
 
@@ -25,7 +28,7 @@ internal class Program
 		
         var logString = JsonSerializer.Serialize(logMessage);
 		
-        httpWrapper.SendRequest("http://localhost:5044", HttpMethod.Post, logString);
+        httpWrapper.SendRequest("elk", HttpMethod.Post, content: logString);
         
         Console.WriteLine("Press any key to exit...");
 

@@ -9,6 +9,8 @@ services:
       GRPC_SERVER_PORT: 16868
       CONTROLLER_PORT: 18686
       CONTROLLER_HOST: controller
+      ELK_HOST: logstash
+      ELK_PORT: 5044
     command: ["5", "2"]
     stdin_open: true
     networks:
@@ -25,6 +27,8 @@ services:
       MONGODB_PASSWORD: pass
       GRPC_SERVER_PORT: 18686
       RABBITMQ_HOSTNAME: rabbitmq
+      ELK_HOST: logstash
+      ELK_PORT: 5044
     stdin_open: true
     networks:
       - app_network
@@ -37,6 +41,8 @@ services:
     environment:
         RABBITMQ_HOSTNAME: rabbitmq
         RABBITMQ_HOSTPORT: 5672
+        ELK_HOST: logstash
+        ELK_PORT: 5044
     stdin_open: true
     networks:
       - app_network

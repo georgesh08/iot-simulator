@@ -42,7 +42,7 @@ public class HttpClientWrapper
 	public async Task<HttpResponseMessage> SendRequest(
 		string serverName,
 		HttpMethod method,
-		string requestUri,
+		string requestUri = "/",
 		string content = null,
 		string mediaType = "application/json")
 	{
@@ -57,6 +57,7 @@ public class HttpClientWrapper
 	public async Task<HttpResponseMessage> SendRequest(
 		Uri absoluteUri,
 		HttpMethod method,
+		string requestUri,
 		string content = null,
 		string mediaType = "application/json")
 	{
