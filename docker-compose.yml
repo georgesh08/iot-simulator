@@ -20,6 +20,9 @@ services:
       context: .
       dockerfile: Dockerfile.controller
     environment:
+      MONGODB_HOST: mongodb
+      MONGODB_USER: admin
+      MONGODB_PASSWORD: pass
       GRPC_SERVER_PORT: 18686
       RABBITMQ_HOSTNAME: rabbitmq
     stdin_open: true

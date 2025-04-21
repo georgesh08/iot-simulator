@@ -67,6 +67,7 @@ public class RuleEngine
 		    var consumer = new EventingBasicConsumer(channel);
 		    consumer.Received += (sender, args) =>
 		    {
+			    Log.Information("Received data from channel");
 			    var body = args.Body.ToArray();
 			    var message = JsonConvert.DeserializeObject<DeviceMessage>(Encoding.UTF8.GetString(body));
 
@@ -130,6 +131,8 @@ public class RuleEngine
         
 		    channel.QueueBind(settings.InstantAnalysisQueue, settings.ExchangeName, settings.InstantAnalysisQueue);
 		    channel.QueueBind(settings.ContinuousAnalysisQueue, settings.ExchangeName, settings.ContinuousAnalysisQueue);
+		    
+		    Log.Information("Connection to RabbitMQ established.");
 		    rmqReconectScheduler.Stop();
 	    }
         
@@ -151,6 +154,7 @@ public class RuleEngine
 		    var res= DeviceDataProcessor.ProcessDeviceData(pair.Value);
 		    res.DeviceId = pair.Key.ToString();
 		    PublishAnalysisResult(settings.ContinuousAnalysisQueue, res);
+		    Log.Information("Publishing continuous analysis result");
 	    }
 
 	    foreach (var pair in lastValues)
@@ -168,6 +172,7 @@ public class RuleEngine
 	    var verdict = DeviceDataProcessor.ProcessDeviceData(message);
 	    verdict.DeviceId = message.DeviceId;
 	    PublishAnalysisResult(settings.InstantAnalysisQueue, verdict);
+	    Log.Information("Publishing instant analysis result");
     }
     
     private void PublishAnalysisResult(string queue, RuleEngineResult result)
@@ -185,6 +190,7 @@ public class RuleEngine
 		    var properties = CreateProps();
 
 		    channel.BasicPublish(settings.ExchangeName, queue, properties, body);
+		    Log.Information("Engine result published");
 	    }
 	    catch (Exception ex)
 	    {

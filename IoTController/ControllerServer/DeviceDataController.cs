@@ -17,6 +17,8 @@ public class DeviceDataController
 	{
 		publisher = new RabbitMqPublisher(dbService);
 		reconnectScheduler = new PeriodicalScheduler(SubscribeToQueues, TimeSpan.FromSeconds(3));
+		
+		reconnectScheduler.Start();
 	}
 
 	private void SubscribeToQueues()

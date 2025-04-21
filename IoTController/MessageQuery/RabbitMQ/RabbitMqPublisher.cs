@@ -114,6 +114,8 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 			var properties = CreateProps();
 
 			channel.BasicPublish(settings.ExchangeName, settings.RoutingKey, properties, body);
+			
+			Log.Information("Published device message to queue");
 
 			await Task.CompletedTask;
 		}
