@@ -15,73 +15,114 @@ public class RuleEngine
 	private IConnection connection;
 	private IModel channel;
 	private readonly RabbitMqSettings settings;
+	private readonly PeriodicalScheduler rmqReconectScheduler;
+	private int reconnectAttempts;
+	private const int MaxReconnectAttempts = 40;
+	private readonly PeriodicalScheduler queueReconnectScheduler;
+
+	private readonly ConnectionFactory connectionFactory;
 
 	private readonly ConcurrentDictionary<Guid, List<DeviceMessage>> lastValues;
 	
-	private PeriodicalScheduler continuousRulesScheduler;
+	private readonly PeriodicalScheduler continuousRulesScheduler;
 	
     public RuleEngine(RabbitMqSettings? settings = null)
     {
-        this.settings = settings ?? new RabbitMqSettings();
+	    if (settings == null)
+	    {
+		    this.settings = new RabbitMqSettings();
+	    }
+        
         lastValues = new ConcurrentDictionary<Guid, List<DeviceMessage>>();
         
+        connectionFactory = new ConnectionFactory
+        {
+	        HostName = this.settings.HostName,
+	        Port = this.settings.HostPort
+        };
+        
         continuousRulesScheduler = new PeriodicalScheduler(ProcessContinuousRules, TimeSpan.FromSeconds(10));
+
+        rmqReconectScheduler = new PeriodicalScheduler(TryConnectToRmq, TimeSpan.FromSeconds(3));
+        queueReconnectScheduler = new PeriodicalScheduler(TryConnectToQueue, TimeSpan.FromSeconds(3));
     }
 
     public void Start()
     {
-	    if (!TryStartRabbitMQService())
+	    rmqReconectScheduler.Start();
+	    continuousRulesScheduler.Start();
+	    queueReconnectScheduler.Start();
+    }
+
+    private void TryConnectToQueue()
+    {
+	    if (channel == null)
 	    {
-		    Log.Error("Failed to start RabbitMQ service");
+		    Log.Error("RabbitMQ channel is not initialized. Skipping subscription.");
 		    return;
 	    }
-	    
-	    Log.Information("Successfully started RabbitMQ service");
-	    
-	    continuousRulesScheduler.Start();
-	    var consumer = new EventingBasicConsumer(channel);
-	    consumer.Received += (sender, args) =>
+
+	    try
 	    {
-		    var body = args.Body.ToArray();
-		    var message = JsonConvert.DeserializeObject<DeviceMessage>(Encoding.UTF8.GetString(body));
-
-		    if (message == null)
+		    var consumer = new EventingBasicConsumer(channel);
+		    consumer.Received += (sender, args) =>
 		    {
-			    return;
-		    }
+			    Log.Information("Received data from channel");
+			    var body = args.Body.ToArray();
+			    var message = JsonConvert.DeserializeObject<DeviceMessage>(Encoding.UTF8.GetString(body));
 
-		    ProcessInstantRules(message);
-		    var deviceId = Guid.TryParse(message.DeviceId, out var id);
-		    if (deviceId)
-		    {
-			    lastValues.TryGetValue(id, out var devices);
-			    if (devices != null)
+			    if (message == null)
 			    {
-				    devices.Add(message);
+				    return;
 			    }
-			    else
+
+			    ProcessInstantRules(message);
+			    var deviceId = Guid.TryParse(message.DeviceId, out var id);
+			    if (deviceId)
 			    {
-				    lastValues[id] = [message];
+				    lastValues.TryGetValue(id, out var devices);
+				    if (devices != null)
+				    {
+					    devices.Add(message);
+				    }
+				    else
+				    {
+					    lastValues[id] = [message];
+				    }
 			    }
-		    }
-	    };
-	    
-	    channel.BasicConsume(settings.DeviceQueue, autoAck: true, consumer);
+		    };
+
+		    channel.BasicConsume(settings.DeviceQueue, autoAck: true, consumer);
+		    queueReconnectScheduler.Stop();
+	    }
+	    catch (Exception e)
+	    {
+		    Log.Error("Failed to bind to queue. Exception: {0}", e.Message);
+	    }
     }
     
-    private bool TryStartRabbitMQService()
+    private void TryConnectToRmq()
     {
-	    var factory = new ConnectionFactory
+	    Log.Information($"Establishing connection to RabbitMq, attempt {reconnectAttempts}");
+	    reconnectAttempts++;
+
+	    if (reconnectAttempts >= MaxReconnectAttempts)
 	    {
-		    HostName = settings.HostName,
-		    Port = settings.HostPort
-	    };
-        
+		    rmqReconectScheduler.Stop(); // stop if max reconnect attempts reached
+		    Log.Information("Reached max reconnect attempts for connecting to RabbitMQ.");
+	    }
+	    
 	    try
 	    {
 		    Log.Information("Connecting to RabbitMQ service with host [{0}] and port {1}", settings.HostName, settings.HostPort);
-		    connection = factory.CreateConnection();
+		    connection = connectionFactory.CreateConnection();
 		    channel = connection.CreateModel();
+		    
+		    if (channel == null)
+		    {
+			    Log.Error("RabbitMQ channel is not initialized. Skipping subscription.");
+			    return;
+		    }
         
 		    channel.ExchangeDeclare(settings.ExchangeName, ExchangeType.Direct, durable: true);
 
@@ -90,13 +131,14 @@ public class RuleEngine
         
 		    channel.QueueBind(settings.InstantAnalysisQueue, settings.ExchangeName, settings.InstantAnalysisQueue);
 		    channel.QueueBind(settings.ContinuousAnalysisQueue, settings.ExchangeName, settings.ContinuousAnalysisQueue);
-		    return true;
+		    
+		    Log.Information("Connection to RabbitMQ established.");
+		    rmqReconectScheduler.Stop();
 	    }
         
 	    catch (Exception e)
 	    {
 		    Log.Error("Couldn't establish connection to RabbitMQ service. Exception: {0}", e.Message);
-		    return false;
 	    }
     }
 
@@ -112,6 +154,7 @@ public class RuleEngine
 		    var res= DeviceDataProcessor.ProcessDeviceData(pair.Value);
 		    res.DeviceId = pair.Key.ToString();
 		    PublishAnalysisResult(settings.ContinuousAnalysisQueue, res);
+		    Log.Information("Publishing continuous analysis result");
 	    }
 
 	    foreach (var pair in lastValues)
@@ -129,6 +172,7 @@ public class RuleEngine
 	    var verdict = DeviceDataProcessor.ProcessDeviceData(message);
 	    verdict.DeviceId = message.DeviceId;
 	    PublishAnalysisResult(settings.InstantAnalysisQueue, verdict);
+	    Log.Information("Publishing instant analysis result");
     }
     
     private void PublishAnalysisResult(string queue, RuleEngineResult result)
@@ -146,6 +190,7 @@ public class RuleEngine
 		    var properties = CreateProps();
 
 		    channel.BasicPublish(settings.ExchangeName, queue, properties, body);
+		    Log.Information("Engine result published");
 	    }
 	    catch (Exception ex)
 	    {

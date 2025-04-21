@@ -69,31 +69,37 @@ public class IoTDeviceService
 
 	private void RegisterDevices()
 	{
-		if (DevicesToRegister == null)
-		{
-			return;
-		}
-		
+		var devicesToRemove = new List<ABaseIoTDevice>();
+
 		foreach (var device in DevicesToRegister)
 		{
 			try
 			{
+				Log.Information("Sending device register request {0}", device.Name);
+				
 				var request = CreateDeviceRegisterRequest(device);
 				var response = client?.RegisterNewDevice(request);
+				
+				Log.Information("Request sent");
 
-				if (response.Status == Status.Error)
+				if (response is { Status: Status.Error })
 				{
 					Log.Error("Couldn't register device with name {0}", device.Name);
 					continue;
 				}
 
 				devices.TryAdd(Guid.Parse(response.DeviceId), device);
-				DevicesToRegister.Remove(device);
+				devicesToRemove.Add(device);
 			}
 			catch (Exception e)
 			{
 				Log.Error("Error during device register request. {0}", e.Message);
 			}
+		}
+
+		foreach (var device in devicesToRemove)
+		{
+			DevicesToRegister.Remove(device);
 		}
 	}
 
@@ -125,6 +131,7 @@ public class IoTDeviceService
 	{
 		foreach (var device in devices)
 		{
+			Log.Information("Sending device data {0}", device.Key);
 			try
 			{
 				var response = client?.SendDeviceData(new DeviceData
@@ -135,7 +142,7 @@ public class IoTDeviceService
 
 				if (response.Status == Status.Error)
 				{
-					Log.Error("Error sending device data for device {0}", device.Key);
+					Log.Error("Error sending device data for {0}", device.Key);
 				}
 			}
 			catch (Exception e)
