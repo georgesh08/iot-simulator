@@ -20,7 +20,7 @@ internal class Program
 		
         httpWrapper.AddServer("elk", "http://localhost:5044");
         
-        var messageToSend = "Rule engine has started";
+        var messageToSend = "IoT controller has started";
         
         var logMessage = new LogMessage(Guid.NewGuid().ToString(), LogLevel.Info, messageToSend);
 		
