@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using ControllerServer;
-using Serilog;
+﻿using Serilog;
 
 namespace IoTController;
 
@@ -8,28 +6,22 @@ internal class Program
 {
     public static async Task Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-            .WriteTo.Console()
-            .CreateLogger();
+	    var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
+	    var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
+	    
+	    Log.Logger = new LoggerConfiguration()
+		    .MinimumLevel.Debug()
+		    .WriteTo.Console()
+		    .WriteTo.DurableHttpUsingFileSizeRolledBuffers(
+			    requestUri: $"http://{elkServer}:{elkPort}",
+			    textFormatter: new Serilog.Formatting.Json.JsonFormatter())
+		    .CreateLogger();
         
         var iotController = new IoTController();
 
         iotController.LaunchController();
-        
-        HttpClientWrapper httpWrapper = new();
-		
-        var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
-        var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
-		
-        httpWrapper.AddServer("elk", $"http://{elkServer}:{elkPort}");
-        
-        var messageToSend = "IoT controller has started";
-        
-        var logMessage = new LogMessage(Guid.NewGuid().ToString(), LogLevel.Info, messageToSend);
-		
-        var logString = JsonSerializer.Serialize(logMessage);
-		
-        httpWrapper.SendRequest("elk", HttpMethod.Post, content: logString);
+
+        Log.Information("IoT controller has started");
         
         Console.WriteLine("Press any key to exit...");
         

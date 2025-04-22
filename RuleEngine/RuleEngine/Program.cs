@@ -7,28 +7,22 @@ internal class Program
 {
     public static void Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-            .WriteTo.Console()
-            .CreateLogger();
+	    var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
+	    var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
+	    
+	    Log.Logger = new LoggerConfiguration()
+		    .MinimumLevel.Debug()
+		    .WriteTo.Console()
+		    .WriteTo.DurableHttpUsingFileSizeRolledBuffers(
+			    requestUri: $"http://{elkServer}:{elkPort}",
+			    textFormatter: new Serilog.Formatting.Json.JsonFormatter())
+		    .CreateLogger();
         
         var ruleEngine = new RuleEngine();
         
-        HttpClientWrapper httpWrapper = new();
-		
-		var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
-	    var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
-        		
-	    httpWrapper.AddServer("elk", $"http://{elkServer}:{elkPort}");
-        
         ruleEngine.Start();
 
-        var messageToSend = "Rule engine has started";
-        
-        var logMessage = new LogMessage(Guid.NewGuid().ToString(), LogLevel.Info, messageToSend);
-		
-        var logString = JsonSerializer.Serialize(logMessage);
-		
-        httpWrapper.SendRequest("elk", HttpMethod.Post, content: logString);
+        Log.Information("Rule engine has started");
         
         Console.WriteLine("Press any key to exit...");
 
