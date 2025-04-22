@@ -30,17 +30,17 @@ public class GrpcSimulatorServer
 
 	public void Start()
 	{
-		ELKLogger.Information("Starting grpc server...");
+		Log.Information("Starting grpc server...");
 		
 		grpcServer.Start();
 		ioTDeviceService.Start();
 		
-		ELKLogger.Information($"Gprc server started at port: {port}");
+		Log.Information("Gprc server started at port: {0}", port);
 	}
 
 	public async Task StopAsync(TimeSpan? timeout = null)
 	{
-		await ELKLogger.Information("Stooping grpc server...");
+		Log.Information("Stooping grpc server...");
 		
 		ioTDeviceService.Stop();
 		
@@ -57,7 +57,7 @@ public class GrpcSimulatorServer
 		else
 		{
 			await shutdownTask;
-			await ELKLogger.Information("Gprc server stopped.");
+			Log.Information("Gprc server stopped.");
 		}
 	}
 }

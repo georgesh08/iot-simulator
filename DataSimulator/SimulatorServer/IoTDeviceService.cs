@@ -75,16 +75,16 @@ public class IoTDeviceService
 		{
 			try
 			{
-				ELKLogger.Information($"Sending device register request {device.Name}");
+				Log.Information("Sending device register request {0}", device.Name);
 				
 				var request = CreateDeviceRegisterRequest(device);
 				var response = client?.RegisterNewDevice(request);
 				
-				ELKLogger.Information("Request sent");
+				Log.Information("Request sent");
 
 				if (response is { Status: Status.Error })
 				{
-					ELKLogger.Error($"Couldn't register device with name {device.Name}");
+					Log.Error("Couldn't register device with name {0}", device.Name);
 					continue;
 				}
 
@@ -93,7 +93,7 @@ public class IoTDeviceService
 			}
 			catch (Exception e)
 			{
-				ELKLogger.Error($"Error during device register request. {e.Message}");
+				Log.Error("Error during device register request. {0}", e.Message);
 			}
 		}
 
@@ -131,7 +131,7 @@ public class IoTDeviceService
 	{
 		foreach (var device in devices)
 		{
-			ELKLogger.Information($"Sending device data {device.Key}");
+			Log.Information("Sending device data {0}", device.Key);
 			try
 			{
 				var response = client?.SendDeviceData(new DeviceData
@@ -140,14 +140,14 @@ public class IoTDeviceService
 					DeviceValue = device.Value.GetDeviceProducedValue()
 				});
 
-				if (response is { Status: Status.Error })
+				if (response.Status == Status.Error)
 				{
-					ELKLogger.Error($"Error sending device data for {device.Key}");
+					Log.Error("Error sending device data for {0}", device.Key);
 				}
 			}
 			catch (Exception e)
 			{
-				ELKLogger.Error($"Unexpected error while sending data for device {device.Key}. {e.Message}");
+				Log.Error("Unexpected error while sending data for device {0}. {1}", device.Key, e.Message);
 			}
 		}
 	}
