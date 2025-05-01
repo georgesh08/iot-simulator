@@ -1,12 +1,15 @@
 ﻿using DataAccessLayer.Models;
 using MongoDB.Driver;
+using Prometheus;
 
 namespace DataAccessLayer.MongoDb;
 
 public class MongoDbService : IDatabaseService
 {
-	private readonly IMongoCollection<DbDevice> _devices;
-	private readonly IMongoCollection<DeviceDataResult> _deviceData;
+	private readonly IMongoCollection<DbDevice> devices;
+	private readonly IMongoCollection<DeviceDataResult> deviceData;
+
+	private readonly Counter dbQueriesCounter;
 
 	public MongoDbService()
 	{
@@ -21,24 +24,31 @@ public class MongoDbService : IDatabaseService
 		
 		var client = new MongoClient(settings.ConnectionString);
 		var database = client.GetDatabase(settings.Database);
-		_devices = database.GetCollection<DbDevice>("Devices");
-		_deviceData = database.GetCollection<DeviceDataResult>("DeviceData");
+		devices = database.GetCollection<DbDevice>("Devices");
+		deviceData = database.GetCollection<DeviceDataResult>("DeviceData");
+		
+		dbQueriesCounter = Metrics
+			.CreateCounter("mongo_queries_total", "Total queries sent sent to MongoDB.");
 	}
 	
 	public async Task<DbDevice?> DeviceExistsAsync(string name)
 	{
-		return await _devices.Find(x => x.Name == name).FirstOrDefaultAsync();
+		var res = await devices.Find(x => x.Name == name).FirstOrDefaultAsync();
+		dbQueriesCounter.Inc();
+		return res;
 	}
 
 	public async Task<DbDevice> CreateDeviceAsync(DbDevice device)
 	{
-		await _devices.InsertOneAsync(device);
+		await devices.InsertOneAsync(device);
+		dbQueriesCounter.Inc();
 		return device;
 	}
 
 	public async Task<DeviceDataResult> SaveDeviceDataRecordAsync(DeviceDataResult result)
 	{
-		await _deviceData.InsertOneAsync(result);
+		await deviceData.InsertOneAsync(result);
+		dbQueriesCounter.Inc();
 		return result;
 	}
 }

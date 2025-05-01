@@ -13,6 +13,8 @@ services:
       ELK_PORT: 5044
     command: ["5", "2"]
     stdin_open: true
+    ports:
+      - "14622:14622"
     networks:
       - app_network
   
@@ -30,6 +32,8 @@ services:
       ELK_HOST: logstash
       ELK_PORT: 5044
     stdin_open: true
+    ports:
+      - "14620:14620"
     networks:
       - app_network
   
@@ -44,6 +48,8 @@ services:
         ELK_HOST: logstash
         ELK_PORT: 5044
     stdin_open: true
+    ports:
+      - "14624:14624"
     networks:
       - app_network
 

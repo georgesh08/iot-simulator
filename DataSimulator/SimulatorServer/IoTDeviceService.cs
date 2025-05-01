@@ -4,6 +4,7 @@ using Base.Device;
 using Grpc.Core;
 using Grpc.Net.Client;
 using IoTServer;
+using Prometheus;
 using Serilog;
 using Utils;
 using Status = IoTServer.Status;
@@ -22,8 +23,9 @@ public class IoTDeviceService
 	
 	private string connectionString;
 
-	private string controllerHost;
-	private int controllerPort;
+	private readonly string? controllerHost;
+	private readonly int controllerPort;
+	private readonly Counter generatorRequestsSent;
 
 	public IoTDeviceService(int period)
 	{
@@ -39,6 +41,8 @@ public class IoTDeviceService
 		
 		connectionScheduler = new PeriodicalScheduler(TryConnect, TimeSpan.FromSeconds(5));
 		dataSenderScheduler = new PeriodicalScheduler(SendUpdate, TimeSpan.FromSeconds(period));
+		
+		generatorRequestsSent = Metrics.CreateCounter("generator_grpc_requests_total", "Total gRPC requests sent from generator.");
 	}
 	
 	public List<ABaseIoTDevice>? DevicesToRegister { get; set; }
@@ -90,6 +94,8 @@ public class IoTDeviceService
 
 				devices.TryAdd(Guid.Parse(response.DeviceId), device);
 				devicesToRemove.Add(device);
+				
+				generatorRequestsSent.Inc();
 			}
 			catch (Exception e)
 			{
@@ -144,6 +150,8 @@ public class IoTDeviceService
 				{
 					Log.Error("Error sending device data for {0}", device.Key);
 				}
+				
+				generatorRequestsSent.Inc();
 			}
 			catch (Exception e)
 			{

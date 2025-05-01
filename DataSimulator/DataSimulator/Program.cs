@@ -1,13 +1,11 @@
-﻿using System.Text.Json;
-using Base;
-using Serilog;
-using SimulatorServer;
+﻿using Serilog;
+using Prometheus;
 
 namespace DataSimulator;
 
 internal class Program
 {
-	static async Task Main(string[] args)
+	static void Main(string[] args)
 	{
 		var elkServer = Environment.GetEnvironmentVariable("ELK_HOST");
 		var elkPort = Environment.GetEnvironmentVariable("ELK_PORT");
@@ -19,6 +17,17 @@ internal class Program
 				requestUri: $"http://{elkServer}:{elkPort}",
 				textFormatter: new Serilog.Formatting.Json.JsonFormatter())
 			.CreateLogger();
+
+		try
+		{
+			var metricsServer = new KestrelMetricServer(14622);
+			metricsServer.Start();
+			Log.Information("Started metrics server");
+		}
+		catch
+		{
+			Log.Information("Failed to start metrics server");
+		}
 		
 		if (args.Length < 2)
 		{

@@ -1,7 +1,15 @@
 global:
-  scrape_interval: 15s
+  scrape_interval: 5s
 
 scrape_configs:
-  - job_name: 'my_microservice'
+  - job_name: 'simulator'
     static_configs:
-      - targets: ['sim:16868'] 
+      - targets: ['simulator:14622']
+
+  - job_name: 'controller'
+    static_configs:
+      - targets: [ 'controller:14620' ]
+        
+  - job_name: 'rule_engine'
+    static_configs:
+      - targets: [ 'ruleengine:14624' ] 

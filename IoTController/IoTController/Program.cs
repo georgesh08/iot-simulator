@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Prometheus;
+using Serilog;
 
 namespace IoTController;
 
@@ -16,6 +17,17 @@ internal class Program
 			    requestUri: $"http://{elkServer}:{elkPort}",
 			    textFormatter: new Serilog.Formatting.Json.JsonFormatter())
 		    .CreateLogger();
+	    
+	    try
+	    {
+		    var metricsServer = new KestrelMetricServer(14620);
+		    metricsServer.Start();
+		    Log.Information("Started metrics server");
+	    }
+	    catch
+	    {
+		    Log.Information("Failed to start metrics server");
+	    }
         
         var iotController = new IoTController();
 

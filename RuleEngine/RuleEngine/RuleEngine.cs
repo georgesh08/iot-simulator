@@ -2,6 +2,7 @@
 using System.Text;
 using MessageQuery.RabbitMQ;
 using Newtonsoft.Json;
+using Prometheus;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RuleEngine.Processor;
@@ -25,6 +26,9 @@ public class RuleEngine
 	private readonly ConcurrentDictionary<Guid, List<DeviceMessage>> lastValues;
 	
 	private readonly PeriodicalScheduler continuousRulesScheduler;
+	
+	private readonly Histogram ruleProcessingDuration = Metrics
+		.CreateHistogram("engine_processing_duration_seconds", "Histogram of rule processing durations.");
 	
     public RuleEngine(RabbitMqSettings? settings = null)
     {
@@ -76,7 +80,11 @@ public class RuleEngine
 				    return;
 			    }
 
-			    ProcessInstantRules(message);
+			    using (ruleProcessingDuration.NewTimer())
+			    {
+				    ProcessInstantRules(message);
+			    }
+			    
 			    var deviceId = Guid.TryParse(message.DeviceId, out var id);
 			    if (deviceId)
 			    {
@@ -151,10 +159,15 @@ public class RuleEngine
 			    continue;
 		    }
 
-		    var res= DeviceDataProcessor.ProcessDeviceData(pair.Value);
+		    RuleEngineResult res;
+		    using (ruleProcessingDuration.NewTimer())
+		    {
+			    res= DeviceDataProcessor.ProcessDeviceData(pair.Value);
+		    }
+		    
 		    res.DeviceId = pair.Key.ToString();
-		    PublishAnalysisResult(settings.ContinuousAnalysisQueue, res);
 		    Log.Information("Publishing continuous analysis result");
+		    PublishAnalysisResult(settings.ContinuousAnalysisQueue, res);
 	    }
 
 	    foreach (var pair in lastValues)

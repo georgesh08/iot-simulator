@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Prometheus;
 using Serilog;
 
 namespace RuleEngine;
@@ -19,6 +19,17 @@ internal class Program
 		    .CreateLogger();
         
         var ruleEngine = new RuleEngine();
+
+        try
+        {
+	        var metricsServer = new KestrelMetricServer(14624);
+	        metricsServer.Start();
+	        Log.Information("Started metrics server");
+        }
+        catch
+        {
+	        Log.Information("Failed to start metrics server");
+        }
         
         ruleEngine.Start();
 
