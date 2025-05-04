@@ -1,5 +1,6 @@
 using Grpc.Health.V1;
 using Grpc.Net.Client;
+using IoTServer;
 
 namespace IntegrationTests;
 
@@ -30,7 +31,7 @@ public class GrpcTests
     }
     
     [Test]
-    public async Task Controller_Should_Be_Healthy()
+    public async Task ControllerShouldBeHealthy()
     {
         var status = await IsServiceHealthyAsync(_controllerServiceAddress);
         Assert.That(status, Is.EqualTo(HealthCheckResponse.Types.ServingStatus.Serving), 
@@ -38,10 +39,35 @@ public class GrpcTests
     }
 
     [Test]
-    public async Task Simulator_Should_Be_Healthy()
+    public async Task SimulatorShouldBeHealthy()
     {
         var status = await IsServiceHealthyAsync(_simulatorServiceAddress);
         Assert.That(status, Is.EqualTo(HealthCheckResponse.Types.ServingStatus.Serving), 
             $"Simulator service is NOT healthy. Actual status {status}");
+    }
+    
+    [Test]
+    public async Task RegisterTestDevice_ShouldReturnOk()
+    {
+        Thread.Sleep(5000); //waiting for all services to start
+        using var channel = GrpcChannel.ForAddress(_controllerServiceAddress);
+        var client = new IoTDeviceService.IoTDeviceServiceClient(channel);
+
+        var request = new DeviceRegisterRequest
+        {
+            Device = new IoTDevice
+            {
+                Name = "TestDevice",
+                Type = DeviceType.Other
+            }
+        };
+        
+        var response = await client.RegisterNewDeviceAsync(request);
+        Assert.Multiple(() =>
+        {
+            Assert.That(response.Status, Is.EqualTo(IoTServer.Status.Ok));
+            Assert.That(response.DeviceId, Is.Not.Null);
+            Assert.That(response.DeviceId, Is.Not.EqualTo(Guid.Empty.ToString()));
+        });
     }
 }

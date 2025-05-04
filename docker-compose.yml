@@ -11,7 +11,7 @@ services:
       CONTROLLER_HOST: controller
       ELK_HOST: logstash
       ELK_PORT: 5044
-    command: ["5", "2"]
+    command: ["25", "3"]
     stdin_open: true
     ports:
       - "14622:14622"

@@ -10,6 +10,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Protobuf Include="..\proto\IoTDeviceService.proto" />
+        <Protobuf Include="..\proto\Device.proto" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
         <PackageReference Include="Google.Protobuf" Version="3.31.0-rc2" />
         <PackageReference Include="Grpc.Core" Version="2.46.6" />

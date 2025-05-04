@@ -1,18 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-# Set working directory
+
 WORKDIR /app
 
 COPY proto ./proto
 
-# Copy the project files
 COPY DataSimulator/ ./src/
 
-# Build the project
 WORKDIR /app/src
 RUN dotnet restore
 RUN dotnet publish -c Release -o /publish
 
-# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /publish .

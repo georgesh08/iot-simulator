@@ -1,6 +1,8 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
+COPY proto ./proto
+
 COPY ./IntegrationTests/ ./IntegrationTests/
 WORKDIR /src/IntegrationTests
 
