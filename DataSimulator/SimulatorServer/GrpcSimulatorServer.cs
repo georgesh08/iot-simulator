@@ -12,12 +12,12 @@ public class GrpcSimulatorServer
 	private readonly Server grpcServer;
 	
 	private readonly IoTDeviceService ioTDeviceService;
-	private HealthServiceImpl healthService;
+	private readonly HealthServiceImpl healthService;
 
 	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
 	{
-		port = Environment.GetEnvironmentVariable("GRPC_SERVER_PORT") != null
-			? Convert.ToInt32(Environment.GetEnvironmentVariable("GRPC_SERVER_PORT"))
+		port = Environment.GetEnvironmentVariable("SIMULATOR_PORT") != null
+			? Convert.ToInt32(Environment.GetEnvironmentVariable("SIMULATOR_PORT"))
 			: 16868;
 		
 		grpcServer = new Server

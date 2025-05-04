@@ -11,13 +11,13 @@ public class GrpcControllerServer
     private int port;
     private readonly Server grpcServer;
     
-    private IoTControllerService iotControllerService;
-    private HealthServiceImpl healthService;
+    private readonly IoTControllerService iotControllerService;
+    private readonly HealthServiceImpl healthService;
 
     public GrpcControllerServer()
     {
-	    port = Environment.GetEnvironmentVariable("GRPC_SERVER_PORT") != null
-		    ? Convert.ToInt32(Environment.GetEnvironmentVariable("GRPC_SERVER_PORT"))
+	    port = Environment.GetEnvironmentVariable("CONTROLLER_PORT") != null
+		    ? Convert.ToInt32(Environment.GetEnvironmentVariable("CONTROLLER_PORT"))
 		    : 18686;
 	    
         grpcServer = new Server

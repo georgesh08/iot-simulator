@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   simulator:
     container_name: simulator
@@ -6,11 +7,11 @@ services:
       context: .
       dockerfile: Dockerfile.simulator
     environment:
-      GRPC_SERVER_PORT: 16868
-      CONTROLLER_PORT: 18686
-      CONTROLLER_HOST: controller
-      ELK_HOST: logstash
-      ELK_PORT: 5044
+      SIMULATOR_PORT: ${SIMULATOR_PORT}
+      CONTROLLER_PORT: ${CONTROLLER_PORT}
+      CONTROLLER_HOST: ${CONTROLLER_HOST}
+      ELK_HOST: ${ELK_HOST}
+      ELK_PORT: ${ELK_PORT}
     command: ["25", "3"]
     stdin_open: true
     ports:
@@ -24,13 +25,13 @@ services:
       context: .
       dockerfile: Dockerfile.controller
     environment:
-      MONGODB_HOST: mongodb
-      MONGODB_USER: admin
-      MONGODB_PASSWORD: pass
-      GRPC_SERVER_PORT: 18686
-      RABBITMQ_HOSTNAME: rabbitmq
-      ELK_HOST: logstash
-      ELK_PORT: 5044
+      MONGODB_HOST: ${MONGODB_HOST}
+      MONGODB_USER: ${MONGODB_USER}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD}
+      CONTROLLER_PORT: ${CONTROLLER_PORT}
+      RABBITMQ_HOSTNAME: ${RABBITMQ_HOSTNAME}
+      ELK_HOST: ${ELK_HOST}
+      ELK_PORT: ${ELK_PORT}
     stdin_open: true
     ports:
       - "14620:14620"
@@ -43,10 +44,10 @@ services:
       context: . 
       dockerfile: Dockerfile.engine
     environment:
-        RABBITMQ_HOSTNAME: rabbitmq
-        RABBITMQ_HOSTPORT: 5672
-        ELK_HOST: logstash
-        ELK_PORT: 5044
+        RABBITMQ_HOSTNAME: ${RABBITMQ_HOSTNAME}
+        RABBITMQ_HOSTPORT: ${RABBITMQ_HOSTPORT}
+        ELK_HOST: ${ELK_HOST}
+        ELK_PORT: ${ELK_PORT}
     stdin_open: true
     ports:
       - "14624:14624"
@@ -60,8 +61,8 @@ services:
       - "5672:5672" # Default RabbitMQ port
       - "15672:15672" # Management console port
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - app_network
   
@@ -69,8 +70,8 @@ services:
     container_name: mongodb
     image: mongo:6-jammy
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - 27017:27017
     volumes:
@@ -102,10 +103,10 @@ services:
       controller:
         condition: service_started
     environment:
-      SIMULATOR_HOST: simulator
-      SIMULATOR_PORT: 16868
-      CONTROLLER_HOST: controller
-      CONTROLLER_PORT: 18686
+      SIMULATOR_HOST: ${SIMULATOR_HOST}
+      SIMULATOR_PORT: ${SIMULATOR_PORT}
+      CONTROLLER_HOST: ${CONTROLLER_HOST}
+      CONTROLLER_PORT: ${CONTROLLER_PORT}
     networks:
       - app_network
 
@@ -138,8 +139,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_USER=admin       
-      - GF_SECURITY_ADMIN_PASSWORD=avpless1   
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}      
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}  
     volumes:
       - grafana-data:/var/lib/grafana       
     networks:
