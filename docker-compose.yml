@@ -90,6 +90,24 @@ services:
       - "9300:9300"
     networks:
       - app_network
+  
+  integration-tests:
+    container_name: integration-tests
+    build:
+      context: .
+      dockerfile: Dockerfile.integration
+    depends_on:
+      simulator:
+        condition: service_started
+      controller:
+        condition: service_started
+    environment:
+      SIMULATOR_HOST: simulator
+      SIMULATOR_PORT: 16868
+      CONTROLLER_HOST: controller
+      CONTROLLER_PORT: 18686
+    networks:
+      - app_network
 
   logstash:
     image: logstash:8.16.6

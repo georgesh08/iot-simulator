@@ -1,4 +1,6 @@
 ﻿using Grpc.Core;
+using Grpc.Health.V1;
+using Grpc.HealthCheck;
 using IoTServer;
 using Serilog;
 
@@ -10,6 +12,7 @@ public class GrpcControllerServer
     private readonly Server grpcServer;
     
     private IoTControllerService iotControllerService;
+    private HealthServiceImpl healthService;
 
     public GrpcControllerServer()
     {
@@ -24,7 +27,11 @@ public class GrpcControllerServer
 
         iotControllerService = new IoTControllerService();
         
+        healthService = new HealthServiceImpl();
+        healthService.SetStatus("", HealthCheckResponse.Types.ServingStatus.Serving);
+        
         grpcServer.Services.Add(IoTDeviceService.BindService(iotControllerService));
+        grpcServer.Services.Add(Health.BindService(healthService));
     }
     
     public void Start()

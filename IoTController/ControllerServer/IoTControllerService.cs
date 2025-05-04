@@ -33,7 +33,10 @@ public class IoTControllerService : IoTDeviceService.IoTDeviceServiceBase
 
 	    if (device != null)
 	    {
-		    deviceIds.Add(device.Id);
+		    if (!deviceIds.Contains(device.Id))
+		    {
+			    deviceIds.Add(device.Id);
+		    }
 		    Log.Information("Device {0} already exists ", device.Name);
 		    return new DeviceRegisterResponse { DeviceId = device.Id.ToString(), Status = Status.Ok };
 	    }

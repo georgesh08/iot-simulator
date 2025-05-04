@@ -1,5 +1,7 @@
 ﻿using Base.Base;
 using Grpc.Core;
+using Grpc.Health.V1;
+using Grpc.HealthCheck;
 using Serilog;
 
 namespace SimulatorServer;
@@ -10,12 +12,13 @@ public class GrpcSimulatorServer
 	private readonly Server grpcServer;
 	
 	private readonly IoTDeviceService ioTDeviceService;
+	private HealthServiceImpl healthService;
 
 	public GrpcSimulatorServer(List<ABaseIoTDevice> devices, int period)
 	{
 		port = Environment.GetEnvironmentVariable("GRPC_SERVER_PORT") != null
 			? Convert.ToInt32(Environment.GetEnvironmentVariable("GRPC_SERVER_PORT"))
-			: 16848;
+			: 16868;
 		
 		grpcServer = new Server
 		{
@@ -26,6 +29,11 @@ public class GrpcSimulatorServer
 		{
 			DevicesToRegister = devices
 		};
+		
+		healthService = new HealthServiceImpl();
+		healthService.SetStatus("", HealthCheckResponse.Types.ServingStatus.Serving);
+    
+		grpcServer.Services.Add(Health.BindService(healthService));
 	}
 
 	public void Start()
