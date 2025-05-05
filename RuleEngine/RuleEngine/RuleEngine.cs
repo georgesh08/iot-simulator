@@ -71,7 +71,6 @@ public class RuleEngine
 		    var consumer = new EventingBasicConsumer(channel);
 		    consumer.Received += (sender, args) =>
 		    {
-			    Log.Information("Received data from channel");
 			    var body = args.Body.ToArray();
 			    var message = JsonConvert.DeserializeObject<DeviceMessage>(Encoding.UTF8.GetString(body));
 
@@ -79,6 +78,8 @@ public class RuleEngine
 			    {
 				    return;
 			    }
+			    
+			    Log.Information($"Received data from {message.DeviceId}");
 
 			    using (ruleProcessingDuration.NewTimer())
 			    {

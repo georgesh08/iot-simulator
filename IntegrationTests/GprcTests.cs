@@ -49,7 +49,6 @@ public class GrpcTests
     [Test]
     public async Task RegisterTestDevice_ShouldReturnOk()
     {
-        Thread.Sleep(5000); //waiting for all services to start
         using var channel = GrpcChannel.ForAddress(_controllerServiceAddress);
         var client = new IoTDeviceService.IoTDeviceServiceClient(channel);
 
