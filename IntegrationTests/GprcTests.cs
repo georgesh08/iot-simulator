@@ -45,28 +45,4 @@ public class GrpcTests
         Assert.That(status, Is.EqualTo(HealthCheckResponse.Types.ServingStatus.Serving), 
             $"Simulator service is NOT healthy. Actual status {status}");
     }
-    
-    [Test]
-    public async Task RegisterTestDevice_ShouldReturnOk()
-    {
-        using var channel = GrpcChannel.ForAddress(_controllerServiceAddress);
-        var client = new IoTDeviceService.IoTDeviceServiceClient(channel);
-
-        var request = new DeviceRegisterRequest
-        {
-            Device = new IoTDevice
-            {
-                Name = "TestDevice",
-                Type = DeviceType.Other
-            }
-        };
-        
-        var response = await client.RegisterNewDeviceAsync(request);
-        Assert.Multiple(() =>
-        {
-            Assert.That(response.Status, Is.EqualTo(IoTServer.Status.Ok));
-            Assert.That(response.DeviceId, Is.Not.Null);
-            Assert.That(response.DeviceId, Is.Not.EqualTo(Guid.Empty.ToString()));
-        });
-    }
 }

@@ -31,6 +31,18 @@ public class MongoDbService : IDatabaseService
 			.CreateCounter("mongo_queries_total", "Total queries sent sent to MongoDB.");
 	}
 	
+	public MongoDbService(string connectionString)
+	{
+		var client = new MongoClient(connectionString);
+		var databaseName = Environment.GetEnvironmentVariable("MONGODB_DATABASE") ?? "DevicesDb";
+		var database = client.GetDatabase(databaseName);
+		devices = database.GetCollection<DbDevice>("Devices");
+		deviceData = database.GetCollection<DeviceDataResult>("DeviceData");
+		
+		dbQueriesCounter = Metrics
+			.CreateCounter("mongo_queries_total", "Total queries sent sent to MongoDB.");
+	}
+	
 	public async Task<DbDevice?> DeviceExistsAsync(string name)
 	{
 		var res = await devices.Find(x => x.Name == name).FirstOrDefaultAsync();
