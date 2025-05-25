@@ -36,6 +36,19 @@ public class RabbitMqPublisher : IMessagePublisher, IDisposable
 		rmqReconnectScheduler = new PeriodicalScheduler(TryConnectToRmq, TimeSpan.FromSeconds(3));
 		rmqReconnectScheduler.Start();
 	}
+	
+	public RabbitMqPublisher(IDatabaseService dbService, string connectionString)
+	{
+		connectionFactory = new ConnectionFactory
+		{
+			HostName = connectionString
+		};
+
+		databaseService = dbService;
+		
+		rmqReconnectScheduler = new PeriodicalScheduler(TryConnectToRmq, TimeSpan.FromSeconds(3));
+		rmqReconnectScheduler.Start();
+	}
 
 	public void SubscribeToAnalysisResults()
 	{

@@ -3,8 +3,10 @@ using DataAccessLayer;
 using DataAccessLayer.Models;
 using DataAccessLayer.MongoDb;
 using DotNet.Testcontainers.Builders;
+using Google.Protobuf;
 using IoTServer;
 using MessageQuery;
+using MessageQuery.RabbitMQ;
 using Testcontainers.MongoDb;
 using Testcontainers.RabbitMq;
 using Utils;
@@ -17,6 +19,9 @@ public class ControllerTests
 	private MongoDbContainer mongo;
 	private RabbitMqContainer rabbitMq;
 	private IDatabaseService repository;
+#pragma warning disable NUnit1032
+	private IMessagePublisher messagePublisher;
+#pragma warning restore NUnit1032
 
 	private const string TestUser = "testuser";
 	private const string TestPassword = "testpass";
@@ -39,10 +44,30 @@ public class ControllerTests
 			mongo.StartAsync(),
 			rabbitMq.StartAsync()
 		);
-        
-		var connectionString = $"mongodb://{TestUser}:{TestPassword}@{mongo.Hostname}:{mongo.GetMappedPublicPort(27017)}";
 		
-		repository = new MongoDbService(connectionString);
+		repository = new MongoDbService(mongo.GetConnectionString());
+		messagePublisher = new RabbitMqPublisher(repository, rabbitMq.GetConnectionString());
+	}
+	
+	[Test]
+	public void ShouldSendDataToQueue()
+	{
+		var id = Guid.NewGuid();
+		var value = new DeviceProducedValue
+		{
+			DummyValue = new DummyDeviceData
+			{
+				ActiveStatus = true,
+				Value1 = 10,
+				Value2 = 20
+			}
+		};
+
+		var message = GetDeviceMessage(id, value);
+		Assert.DoesNotThrowAsync(async () =>
+		{
+			await messagePublisher.PublishDeviceDataAsync(message);
+		});
 	}
 
 	[Test]
@@ -119,7 +144,7 @@ public class ControllerTests
 	[Test]
 	public void EnsureWritingInDbRuleEngineReport()
 	{
-		var verdict = new RuleEngineResult()
+		var verdict = new RuleEngineResult
 		{
 			DeviceId = Guid.NewGuid().ToString(),
 			EngineVerdict = MessageQuery.Status.Ok,
@@ -139,6 +164,18 @@ public class ControllerTests
 	{
 		await mongo.DisposeAsync();
 		await rabbitMq.DisposeAsync();
+	}
+	
+	private DeviceMessage GetDeviceMessage(Guid deviceId, DeviceProducedValue value)
+	{
+		var bytes = value.ToByteArray();
+		var res = Convert.ToBase64String(bytes);
+		return new DeviceMessage
+		{
+			DeviceId = deviceId.ToString(),
+			Value = res,
+			Timestamp = TimestampConverter.ConvertToTimestamp(DateTime.UtcNow),
+		};
 	}
 
 	private IoTDevice GetDummyDevice()
