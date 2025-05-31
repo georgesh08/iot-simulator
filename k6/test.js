@@ -1,27 +1,81 @@
 import { check, sleep } from 'k6';
 import grpc from 'k6/net/grpc';
 
+function generateRandomDeviceName() {
+  const prefix = 'Device';
+  const randomId = Math.floor(Math.random() * 1000000);
+  return `${prefix}-${randomId}`;
+}
+
+// Функция для генерации случайных данных устройства
+function generateDeviceData(deviceId) {
+  return {
+    deviceId: deviceId,
+    deviceValue: {
+      industrialDeviceValue: {
+        systemId: "System-" + Math.floor(Math.random() * 1000),
+        systemName: "Industrial-Sensor",
+        environment: {
+          temperature: Math.random() * 50 - 10, // от -10 до +40
+          humidity: Math.random() * 100,       // от 0 до 100
+          pressure: 900 + Math.random() * 200, // от 900 до 1100
+          lightLevel: Math.random() * 1000,    // от 0 до 1000
+          noiseLevel: Math.random() * 100,     // от 0 до 100
+          quality: Math.floor(Math.random() * 3) // 0-2 (NONE, GOOD, BAD)
+        },
+        tags: ["sensor", "industrial", "monitoring"],
+        errorCount: Math.floor(Math.random() * 10),
+        metadata: {
+          "location": "factory-floor",
+          "manufacturer": "IndustrialIoT Inc."
+        },
+        timestamp: Date.now().toString(),
+        systemHealth: {
+          cpuLoad: Math.random() * 100,
+          memoryUsage: Math.random() * 100,
+          storageUsage: Math.random() * 100,
+          batteryLevel: Math.random() * 100,
+          uptime: (3600 + Math.floor(Math.random() * 86400)).toString(), // 1-24 hours
+          activeProcesses: ["data-collector", "networking"]
+        },
+        diagnostics: {
+          logs: ["System operational", "Data collection active"],
+          warnings: [
+            {
+              alertId: "temp-alert",
+              level: Math.random() > 0.8 ? 3 : 2, // 20% chance for CRITICAL
+              source: "temperature-sensor",
+              timestamp: Date.now().toString(),
+              acknowledged: false
+            }
+          ]
+        }
+      }
+    }
+  };
+}
+
 const client = new grpc.Client();
 client.load(['proto'], 'Device.proto');
 client.load(['proto'], 'IoTDeviceService.proto');
 
 export default () => {
-  client.connect('controller:14620', { plaintext: true });
+  client.connect('controller:18686', { plaintext: true });
 
-  // Вызов RegisterNewDevice
+  // 1. Регистрация нового устройства
   const registerResponse = client.invoke('IoTServer.IoTDeviceService/RegisterNewDevice', {
     device: {
-      name: 'Test Device 1',
+      name: generateRandomDeviceName(),
       type: 0, // SENSOR
     },
   });
 
   check(registerResponse, {
-    'register status is OK': (r) => r.status === 0,
+    'register status is OK': (r) => r && r.message && r.message.status === "StatusOk",
     'deviceId received': (r) => r && r.message && r.message.deviceId !== undefined,
   });
 
-  if (registerResponse.status !== 0) {
+  if (!registerResponse.message || registerResponse.message.status !== "StatusOk") {
     console.error('RegisterNewDevice failed');
     client.close();
     return;
@@ -29,57 +83,24 @@ export default () => {
 
   const deviceId = registerResponse.message.deviceId;
 
-  // Вызов SendDeviceData с deviceId из регистрации
-  const sendDataResponse = client.invoke('IoTServer.IoTDeviceService/SendDeviceData', {
-    deviceId: deviceId,
-    deviceValue: {
-      industrialDeviceValue: {
-        systemId: 'sys-001',
-        systemName: 'Industrial System 1',
-        environment: {
-          temperature: 22.5,
-          humidity: 45.0,
-          pressure: 101325,
-          lightLevel: 300,
-          noiseLevel: 40,
-          quality: 0, // EXCELLENT
-        },
-        tags: ['tag1', 'tag2'],
-        errorCount: 0,
-        metadata: { location: 'Factory Floor' },
-        timestamp: Date.now(),
-        systemHealth: {
-          cpuLoad: 0.5,
-          memoryUsage: 0.7,
-          storageUsage: 0.3,
-          batteryLevel: 0.9,
-          uptime: 123456,
-          activeProcesses: ['proc1', 'proc2'],
-          statusFlags: { flag1: 'ok' },
-        },
-        diagnostics: {
-          systemParams: { param1: 'value1' },
-          logs: ['log1', 'log2'],
-          warnings: [],
-          rawDiagnosticDump: new Uint8Array([]),
-          health: {
-            cpuLoad: 0.5,
-            memoryUsage: 0.7,
-            storageUsage: 0.3,
-            batteryLevel: 0.9,
-            uptime: 123456,
-            activeProcesses: ['proc1', 'proc2'],
-            statusFlags: { flag1: 'ok' },
-          },
-        },
-      },
-    },
-  });
+  // 2. Отправка 3 сообщений с данными
+  for (let i = 0; i < 3; i++) {
+    const data = generateDeviceData(deviceId);
+    const sendDataResponse = client.invoke('IoTServer.IoTDeviceService/SendDeviceData', data);
+    
+    check(sendDataResponse, {
+      [`send data ${i+1} status is OK`]: (r) => r && r.message && r.message.status === "StatusOk",
+    });
 
-  check(sendDataResponse, {
-    'send data status is OK': (r) => r.status === 0,
-  });
+    if (!sendDataResponse.message || sendDataResponse.message.status !== "StatusOk") {
+      console.error(`SendDeviceData ${i+1} failed`);
+    } else {
+      console.log(`Message ${i+1} sent successfully`);
+    }
+
+    sleep(1); // Пауза 1 секунда между сообщениями
+  }
 
   client.close();
-  sleep(1);
+  sleep(3);
 };

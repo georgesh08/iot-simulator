@@ -1,23 +1,23 @@
 version: "3.9"
 
 services:
-  # simulator:
-  #   container_name: simulator
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.simulator
-  #   environment:
-  #     SIMULATOR_PORT: ${SIMULATOR_PORT}
-  #     CONTROLLER_PORT: ${CONTROLLER_PORT}
-  #     CONTROLLER_HOST: ${CONTROLLER_HOST}
-  #     ELK_HOST: ${ELK_HOST}
-  #     ELK_PORT: ${ELK_PORT}
-  #   command: ["25", "3"]
-  #   stdin_open: true
-  #   ports:
-  #     - "14622:14622"
-  #   networks:
-  #     - app_network
+  simulator:
+    container_name: simulator
+    build:
+      context: .
+      dockerfile: Dockerfile.simulator
+    environment:
+      SIMULATOR_PORT: ${SIMULATOR_PORT}
+      CONTROLLER_PORT: ${CONTROLLER_PORT}
+      CONTROLLER_HOST: ${CONTROLLER_HOST}
+      ELK_HOST: ${ELK_HOST}
+      ELK_PORT: ${ELK_PORT}
+    command: ["25", "3"]
+    stdin_open: true
+    ports:
+      - "14622:14622"
+    networks:
+      - app_network
   
   controller:
     container_name: controller
@@ -93,23 +93,23 @@ services:
     networks:
       - app_network
   
-  # integration-tests:
-  #   container_name: integration-tests
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.integration
-  #   depends_on:
-  #     simulator:
-  #       condition: service_started
-  #     controller:
-  #       condition: service_started
-  #   environment:
-  #     SIMULATOR_HOST: ${SIMULATOR_HOST}
-  #     SIMULATOR_PORT: ${SIMULATOR_PORT}
-  #     CONTROLLER_HOST: ${CONTROLLER_HOST}
-  #     CONTROLLER_PORT: ${CONTROLLER_PORT}
-  #   networks:
-  #     - app_network
+  integration-tests:
+    container_name: integration-tests
+    build:
+      context: .
+      dockerfile: Dockerfile.integration
+    depends_on:
+      simulator:
+        condition: service_started
+      controller:
+        condition: service_started
+    environment:
+      SIMULATOR_HOST: ${SIMULATOR_HOST}
+      SIMULATOR_PORT: ${SIMULATOR_PORT}
+      CONTROLLER_HOST: ${CONTROLLER_HOST}
+      CONTROLLER_PORT: ${CONTROLLER_PORT}
+    networks:
+      - app_network
 
   logstash:
     image: logstash:8.16.6
@@ -151,14 +151,14 @@ services:
     image: grafana/k6:latest
     container_name: k6
     depends_on:
-      controller:
-        condition: service_started
+      integration-tests:
+        condition: service_completed_successfully
     volumes:
       - ./k6:/k6
       - ./proto:/k6/proto
     networks:
       - app_network
-    entrypoint: ["k6", "run", "--vus", "10", "--duration", "30s", "/k6/test.js"]
+    entrypoint: ["k6", "run", "--vus", "100", "--duration", "60s", "/k6/test.js"]
 
   prometheus:
     image: prom/prometheus
