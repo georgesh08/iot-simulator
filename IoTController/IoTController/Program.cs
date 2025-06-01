@@ -1,5 +1,4 @@
-﻿using Prometheus;
-using Serilog;
+﻿using Serilog;
 
 namespace IoTController;
 
@@ -20,8 +19,7 @@ internal class Program
 	    
 	    try
 	    {
-		    var metricsServer = new KestrelMetricServer(14620);
-		    metricsServer.Start();
+		    PrometheusServer.Start();
 		    Log.Information("Started metrics server");
 	    }
 	    catch
