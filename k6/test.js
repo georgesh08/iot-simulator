@@ -55,6 +55,16 @@ function generateDeviceData(deviceId) {
   };
 }
 
+const VUS = parseInt(__ENV.VUS) || 1;
+const RATE = __ENV.RATE || 1;
+const DURATION = __ENV.DURATION || '1m';
+
+export const options = {
+  vus: VUS, // Количество виртуальных пользователей
+  duration: DURATION, // Длительность теста
+};
+
+
 const client = new grpc.Client();
 client.load(['proto'], 'Device.proto');
 client.load(['proto'], 'IoTDeviceService.proto');
@@ -98,9 +108,9 @@ export default () => {
       console.log(`Message ${i+1} sent successfully`);
     }
 
-    sleep(1); // Пауза 1 секунда между сообщениями
+    sleep(RATE); 
   }
 
   client.close();
-  sleep(3);
+  sleep(1);
 };
