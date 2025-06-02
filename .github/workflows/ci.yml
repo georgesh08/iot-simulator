@@ -31,6 +31,9 @@ jobs:
           fi
           docker-compose down
           
-      - name: Show k6 logs
-        run: |
-          docker logs k6_lt_peak_load_stress
+      - name: Upload k6 test artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-test-results
+          path: ./k6-output/
+          if-no-files-found: error
