@@ -55,6 +55,17 @@ function generateDeviceData(deviceId) {
   };
 }
 
+import { htmlReport } from "https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js";
+import { textSummary } from "https://jslib.k6.io/k6-summary/0.0.1/index.js";
+
+export function handleSummary(data) {
+  return {
+    "/tmp/k6-output/summary.html": htmlReport(data),
+    "/tmp/k6-output/summary.json": JSON.stringify(data),
+    stdout: textSummary(data, { indent: " ", enableColors: true }),
+  };
+}
+
 const VUS = parseInt(__ENV.VUS) || 1;
 const RATE = __ENV.RATE || 1;
 const DURATION = __ENV.DURATION || '1m';
@@ -63,7 +74,6 @@ export const options = {
   vus: VUS, // Количество виртуальных пользователей
   duration: DURATION, // Длительность теста
 };
-
 
 const client = new grpc.Client();
 client.load(['proto'], 'Device.proto');
@@ -105,7 +115,7 @@ export default () => {
     if (!sendDataResponse.message || sendDataResponse.message.status !== "StatusOk") {
       console.error(`SendDeviceData ${i+1} failed`);
     } else {
-      console.log(`Message ${i+1} sent successfully`);
+      //console.log(`Message ${i+1} sent successfully`);
     }
 
     sleep(RATE); 

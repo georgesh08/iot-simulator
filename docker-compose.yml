@@ -158,13 +158,14 @@ services:
     volumes:
       - ./k6:/k6
       - ./proto:/k6/proto
+      - ./k6-output:/tmp/k6-output
     environment:
       VUS: 3000
       RATE: 5
       DURATION: "1m"
     networks:
       - app_network
-    entrypoint: ["k6", "run", "/k6/test.js"]
+    command: ["run", "/k6/test.js"]
 
   k6_lt_few_devices_high_rate:
     image: grafana/k6:latest
@@ -192,13 +193,14 @@ services:
     volumes:
       - ./k6:/k6
       - ./proto:/k6/proto
+      - ./k6-output:/tmp/k6-output
     environment:
       VUS: 3000
       RATE: 1
       DURATION: "1m"
     networks:
       - app_network
-    entrypoint: ["k6", "run", "/k6/test.js"]
+    entrypoint: ["k6", "run", "--out", "json=/tmp/k6-output/report.html", "/k6/test.js"]
 
   prometheus:
     image: prom/prometheus
