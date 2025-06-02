@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -40,7 +40,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 500
               }
             ]
           }
@@ -60,7 +60,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "mean"
           ],
           "fields": "",
           "values": false
@@ -88,7 +88,7 @@
           "useBackend": false
         }
       ],
-      "title": "Realtime memory usage",
+      "title": "Process working set bytes",
       "type": "gauge"
     },
     {
@@ -127,17 +127,18 @@
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
-        "orientation": "auto",
+        "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "mean"
           ],
           "fields": "",
           "values": false
         },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
-        "sizing": "auto"
+        "sizing": "auto",
+        "text": {}
       },
       "pluginVersion": "11.6.0",
       "targets": [
@@ -515,7 +516,7 @@
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": "5s",
   "schemaVersion": 41,
   "tags": [
     "prometheus-net",
@@ -598,12 +599,8 @@
       },
       {
         "current": {
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "femxql7zi835sc",
         "definition": "label_values(http_requests_received_total, instance)",
@@ -621,12 +618,12 @@
     ]
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "prometheus-net",
   "uid": "zyAf4i4Zz",
-  "version": 10
+  "version": 7
 }

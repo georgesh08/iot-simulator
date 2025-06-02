@@ -104,8 +104,6 @@ services:
       controller:
         condition: service_started
     environment:
-      SIMULATOR_HOST: ${SIMULATOR_HOST}
-      SIMULATOR_PORT: ${SIMULATOR_PORT}
       CONTROLLER_HOST: ${CONTROLLER_HOST}
       CONTROLLER_PORT: ${CONTROLLER_PORT}
     networks:
