@@ -156,7 +156,7 @@ services:
     volumes:
       - ./k6:/k6
       - ./proto:/k6/proto
-      - ./k6/output:/tmp/output
+      - ./k6-output:/tmp/output
     environment:
       VUS: 3000
       RATE: 5
