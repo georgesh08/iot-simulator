@@ -1,3 +1,4 @@
+
 name: Docker Compose CI
 
 on:
@@ -17,33 +18,23 @@ jobs:
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Start containers and wait for k6 completion
+          docker-compose --version  # Проверка установки
+      - name: Start containers and wait for k6
         run: |
-          # Start services in detached mode
           docker-compose up -d
-          
-          # Wait for k6 container to complete
-          echo "Waiting for k6_lt_many_devices_low_rate container to finish..."
-          docker wait k6_lt_many_devices_low_rate
-          
-          # Get exit code
-          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_many_devices_low_rate)
-          echo "k6 container exited with code: $CONTAINER_EXIT_CODE"
-          
-          # Stop all containers
-          docker-compose down
-          
-          # Exit with k6 container's status code
+          while [ "$(docker inspect -f '{{.State.Running}}' k6_lt_many_devices_low_rate 2>/dev/null)" = "true" ]; do
+            sleep 1
+          done
+          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_many_devices_low_rate 2>/dev/null || echo 1)
           if [ "$CONTAINER_EXIT_CODE" -ne 0 ]; then
             echo "❌ k6 test failed!"
-            exit $CONTAINER_EXIT_CODE
+            exit 1
           fi
-
-      - name: Upload k6 tests artifacts
-        uses: actions/upload-artifact@v4
+          docker-compose down
+          
+      - name: Upload k6 test artifacts
+        uses: actions/upload-artifact@v4  # ← Актуальная версия
         with:
           name: k6-test-results
-          path: ./k6/output/*
+          path: ./k6/output/
           if-no-files-found: error
