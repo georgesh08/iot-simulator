@@ -25,16 +25,12 @@ jobs:
           docker-compose up -d
           
           # Wait for k6 container to complete
-          echo "Waiting for k6_lt_peak_load_stress container to finish..."
-          docker wait k6_lt_peak_load_stress
+          echo "Waiting for k6_lt_many_devices_low_rate container to finish..."
+          docker wait k6_lt_many_devices_low_rate
           
           # Get exit code
-          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_peak_load_stress)
+          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_many_devices_low_rate)
           echo "k6 container exited with code: $CONTAINER_EXIT_CODE"
-          
-          # Log container output
-          echo "k6 container logs:"
-          docker logs k6_lt_peak_load_stress
           
           # Stop all containers
           docker-compose down
