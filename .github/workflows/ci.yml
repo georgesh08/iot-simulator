@@ -32,7 +32,7 @@ jobs:
           docker-compose down
           
       - name: Upload k6 test artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # ← Актуальная версия
         with:
           name: k6-test-results
           path: ./k6-output/
