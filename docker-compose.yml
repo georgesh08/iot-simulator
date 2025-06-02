@@ -156,49 +156,53 @@ services:
     volumes:
       - ./k6:/k6
       - ./proto:/k6/proto
-      - ./k6-output:/tmp/k6-output
+      - ./k6/output:/tmp/output
     environment:
       VUS: 3000
       RATE: 5
       DURATION: "1m"
+      TEST_NAME: "k6_lt_many_devices_low_rate"
     networks:
       - app_network
     entrypoint: ["k6", "run", "/k6/test.js"]
 
-  # k6_lt_few_devices_high_rate:
-  #   image: grafana/k6:latest
-  #   container_name: k6_lt_few_devices_high_rate
-  #   depends_on:
-  #     k6_lt_many_devices_low_rate:
-  #       condition: service_completed_successfully
-  #   volumes:
-  #     - ./k6:/k6
-  #     - ./proto:/k6/proto
-  #   environment:
-  #     VUS: 1000
-  #     RATE: 1
-  #     DURATION: "1m"
-  #   networks:
-  #     - app_network
-  #   entrypoint: ["k6", "run", "/k6/test.js"]
+  k6_lt_few_devices_high_rate:
+    image: grafana/k6:latest
+    container_name: k6_lt_few_devices_high_rate
+    depends_on:
+      k6_lt_many_devices_low_rate:
+        condition: service_completed_successfully
+    volumes:
+      - ./k6:/k6
+      - ./proto:/k6/proto
+      - ./k6/output:/tmp/output
+    environment:
+      VUS: 1000
+      RATE: 1
+      DURATION: "1m"
+      TEST_NAME: "k6_lt_few_devices_high_rate"
+    networks:
+      - app_network
+    entrypoint: ["k6", "run", "/k6/test.js"]
 
-  # k6_lt_peak_load_stress:
-  #   image: grafana/k6:latest
-  #   container_name: k6_lt_peak_load_stress
-  #   depends_on:
-  #     k6_lt_few_devices_high_rate:
-  #       condition: service_completed_successfully
-  #   volumes:
-  #     - ./k6:/k6
-  #     - ./proto:/k6/proto
-  #     - ./k6-output:/tmp/k6-output
-  #   environment:
-  #     VUS: 3000
-  #     RATE: 1
-  #     DURATION: "1m"
-  #   networks:
-  #     - app_network
-  #   entrypoint: ["k6", "run", "--out", "json=/tmp/k6-output/report.html", "/k6/test.js"]
+  k6_lt_peak_load_stress:
+    image: grafana/k6:latest
+    container_name: k6_lt_peak_load_stress
+    depends_on:
+      k6_lt_few_devices_high_rate:
+        condition: service_completed_successfully
+    volumes:
+      - ./k6:/k6
+      - ./proto:/k6/proto
+      - ./k6/output:/tmp/output
+    environment:
+      VUS: 3000
+      RATE: 1
+      DURATION: "1m"
+      TEST_NAME: "k6_lt_peak_load_stress"
+    networks:
+      - app_network
+    entrypoint: ["k6", "run", "/k6/test.js"]
 
   prometheus:
     image: prom/prometheus

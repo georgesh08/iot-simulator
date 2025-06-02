@@ -55,13 +55,18 @@ function generateDeviceData(deviceId) {
   };
 }
 
+const CONTAINER_NAME = __ENV.TEST_NAME|| "k6_test";
+
 import { htmlReport } from "./k6-libs/bundle.js";
 import { textSummary } from "./k6-libs/index.js";
 
 export function handleSummary(data) {
+
+  const reportPrefix = `${CONTAINER_NAME}_summary`;
+
   return {
-    "/tmp/k6-output/summary.html": htmlReport(data),
-    "/tmp/k6-output/summary.json": JSON.stringify(data),
+    [`/tmp/output/${reportPrefix}.html`]: htmlReport(data),
+    [`/tmp/output/${reportPrefix}.json`]: JSON.stringify(data),
     stdout: textSummary(data, { indent: " ", enableColors: true }),
   };
 }

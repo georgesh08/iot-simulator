@@ -21,19 +21,19 @@ jobs:
       - name: Start containers and wait for k6
         run: |
           docker-compose up -d
-          while [ "$(docker inspect -f '{{.State.Running}}' k6_lt_many_devices_low_rate 2>/dev/null)" = "true" ]; do
+          while [ "$(docker inspect -f '{{.State.Running}}' k6_lt_peak_load_stress 2>/dev/null)" = "true" ]; do
             sleep 1
           done
-          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_many_devices_low_rate 2>/dev/null || echo 1)
+          CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_peak_load_stress 2>/dev/null || echo 1)
           if [ "$CONTAINER_EXIT_CODE" -ne 0 ]; then
             echo "❌ k6 test failed!"
             exit 1
           fi
           docker-compose down
           
-      - name: Upload k6 test artifacts
+      - name: Upload k6 tests artifacts
         uses: actions/upload-artifact@v4  # ← Актуальная версия
         with:
           name: k6-test-results
-          path: ./k6-output/
+          path: ./k6/output/
           if-no-files-found: error
