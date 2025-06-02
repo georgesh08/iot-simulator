@@ -1,0 +1,32 @@
+groups:
+- name: docker-alerts
+  rules:
+  # Алерт на высокую загрузку CPU (для контейнеров)
+  - alert: HighContainerCPU
+    expr: sum by(container_name) (rate(container_cpu_usage_seconds_total{container_name!=""}[1m])) * 100 > 80
+    for: 10s
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU in {{ $labels.container_name }}"
+      description: "CPU usage is {{ $value }}% (threshold: 80%)"
+
+  # Алерт на высокую загрузку памяти
+  - alert: HighContainerMemory
+    expr: (container_memory_usage_bytes{container_name!=""} / container_spec_memory_limit_bytes{container_name!=""}) * 100 > 75
+    for: 10s
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory in {{ $labels.container_name }}"
+      description: "Memory usage is {{ $value }}% (threshold: 75%)"
+
+  # Алерт на недоступность сервиса
+  - alert: ContainerDown
+    expr: up{job="docker"} == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Container {{ $labels.container_name }} is down!"
+      description: "Container {{ $labels.container_name }} has been down for more than 30 seconds."

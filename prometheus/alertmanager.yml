@@ -1,0 +1,7 @@
+route:
+  receiver: 'default-receiver'
+
+receivers:
+- name: 'default-receiver'
+  webhook_configs:
+  - url: 'http://your-webhook-service/alert'  # Замените на ваш вебхук или email конфиг
