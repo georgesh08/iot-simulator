@@ -164,7 +164,7 @@ services:
       TEST_NAME: "k6_lt_many_devices_low_rate"
     networks:
       - app_network
-    entrypoint: ["k6", "run", "/k6/test.js"]
+    entrypoint: ["sh", "-c", "sleep 60 && k6 run /k6/test.js"]
 
   k6_lt_few_devices_high_rate:
     image: grafana/k6:latest
@@ -183,7 +183,7 @@ services:
       TEST_NAME: "k6_lt_few_devices_high_rate"
     networks:
       - app_network
-    entrypoint: ["k6", "run", "/k6/test.js"]
+    entrypoint: ["sh", "-c", "sleep 60 && k6 run /k6/test.js"]
 
   k6_lt_peak_load_stress:
     image: grafana/k6:latest
@@ -202,7 +202,7 @@ services:
       TEST_NAME: "k6_lt_peak_load_stress"
     networks:
       - app_network
-    entrypoint: ["k6", "run", "/k6/test.js"]
+    entrypoint: ["sh", "-c", "sleep 60 && k6 run /k6/test.js"]
 
   prometheus:
     image: prom/prometheus
