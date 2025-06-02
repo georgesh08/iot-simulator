@@ -25,9 +25,13 @@ jobs:
           while [ "$(docker inspect -f '{{.State.Running}}' k6_lt_peak_load_stress 2>/dev/null)" = "true" ]; do
             sleep 1
           done
+          # Выводим логи и проверяем файлы
+          docker logs k6_lt_peak_load_stress || echo "⚠️ Failed to get logs"
+          docker exec k6_lt_peak_load_stress ls -l /k6 /tmp/k6-output || true
+          # Проверяем код выхода
           CONTAINER_EXIT_CODE=$(docker inspect -f '{{.State.ExitCode}}' k6_lt_peak_load_stress 2>/dev/null || echo 1)
           if [ "$CONTAINER_EXIT_CODE" -ne 0 ]; then
-            echo "❌ k6 test failed!"
+            echo "❌ k6 test failed! Exit code: $CONTAINER_EXIT_CODE"
             exit 1
           fi
           docker-compose down
