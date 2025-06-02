@@ -31,3 +31,7 @@ jobs:
             exit 1
           fi
           docker-compose down
+          
+      - name: Show k6 logs
+        run: |
+          docker logs k6_lt_peak_load_stress
