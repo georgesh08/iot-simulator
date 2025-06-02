@@ -165,7 +165,7 @@ services:
       DURATION: "1m"
     networks:
       - app_network
-    command: ["run", "/k6/test.js"]
+    entrypoint: ["k6", "run", "/k6/test.js"]
 
   # k6_lt_few_devices_high_rate:
   #   image: grafana/k6:latest
