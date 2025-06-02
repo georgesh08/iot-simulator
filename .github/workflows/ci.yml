@@ -35,5 +35,5 @@ jobs:
         uses: actions/upload-artifact@v4  # ← Актуальная версия
         with:
           name: k6-test-results
-          path: ./k6/output/
+          path: ./k6/output/*
           if-no-files-found: error
