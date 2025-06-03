@@ -1,7 +1,14 @@
+global: { resolve_timeout: 5m }
+
 route:
-  receiver: 'default-receiver'
+  receiver: default
 
 receivers:
-- name: 'default-receiver'
-  webhook_configs:
-  - url: 'http://your-webhook-service/alert'  # Замените на ваш вебхук или email конфиг
+  - name: default
+    email_configs:
+      - to: georgiyshulyak@gmail.com
+        from: georgiyshulyak@gmail.com
+        smarthost: smtp.example.com:587
+        auth_username: georgiyshulyak@gmail.com
+        auth_identity: georgiyshulyak@gmail.com
+        auth_password: "password"

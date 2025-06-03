@@ -1,32 +1,24 @@
 groups:
-- name: docker-alerts
-  rules:
-  # Алерт на высокую загрузку CPU (для контейнеров)
-  - alert: HighContainerCPU
-    expr: sum by(container_name) (rate(container_cpu_usage_seconds_total{container_name!=""}[1m])) * 100 > 80
-    for: 10s
-    labels:
-      severity: warning
-    annotations:
-      summary: "High CPU in {{ $labels.container_name }}"
-      description: "CPU usage is {{ $value }}% (threshold: 80%)"
+  - name: base_alerts
+    rules:
+      - alert: HighCPU
+        expr: (sum by(instance)(rate(container_cpu_usage_seconds_total{image!=""}[2m]))*100) > 80
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "CPU >80 % на {{ $labels.instance }}"
+          description: "Нагрузка держится 2 мин."
 
-  # Алерт на высокую загрузку памяти
-  - alert: HighContainerMemory
-    expr: (container_memory_usage_bytes{container_name!=""} / container_spec_memory_limit_bytes{container_name!=""}) * 100 > 75
-    for: 10s
-    labels:
-      severity: warning
-    annotations:
-      summary: "High memory in {{ $labels.container_name }}"
-      description: "Memory usage is {{ $value }}% (threshold: 75%)"
+      - alert: HighMemory
+        expr: (container_memory_usage_bytes{image!=""} / container_spec_memory_limit_bytes{image!=""})*100 > 75
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "Память >75 % на {{ $labels.instance }}"
 
-  # Алерт на недоступность сервиса
-  - alert: ContainerDown
-    expr: up{job="docker"} == 0
-    for: 30s
-    labels:
-      severity: critical
-    annotations:
-      summary: "Container {{ $labels.container_name }} is down!"
-      description: "Container {{ $labels.container_name }} has been down for more than 30 seconds."
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.job }} недоступен"
