@@ -1,6 +1,148 @@
 ﻿version: "3.9"
 
 services:
+
+  configsvr1:
+    image: mongo:6.0
+    container_name: configsvr1
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    ports:
+      - 27019:27019
+    volumes:
+      - configsvr1_data:/data/db
+    networks:
+      - app_network
+
+  configsvr2:
+    image: mongo:6.0
+    container_name: configsvr2
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    volumes:
+      - configsvr2_data:/data/db
+    networks:
+      - app_network
+
+  configsvr3:
+    image: mongo:6.0
+    container_name: configsvr3
+    command: mongod --configsvr --replSet configReplSet --port 27019 --bind_ip_all
+    volumes:
+      - configsvr3_data:/data/db
+    networks:
+      - app_network
+
+  # Shard 1 replica set
+  shard1_1:
+    image: mongo:6.0
+    container_name: shard1_1
+    command: mongod --shardsvr --replSet shard1ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard1_1_data:/data/db
+    networks:
+      - app_network
+
+  shard1_2:
+    image: mongo:6.0
+    container_name: shard1_2
+    command: mongod --shardsvr --replSet shard1ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard1_2_data:/data/db
+    networks:
+      - app_network
+
+  shard1_3:
+    image: mongo:6.0
+    container_name: shard1_3
+    command: mongod --shardsvr --replSet shard1ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard1_3_data:/data/db
+    networks:
+      - app_network
+
+  # Shard 2 replica set
+  shard2_1:
+    image: mongo:6.0
+    container_name: shard2_1
+    command: mongod --shardsvr --replSet shard2ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard2_1_data:/data/db
+    networks:
+      - app_network
+
+  shard2_2:
+    image: mongo:6.0
+    container_name: shard2_2
+    command: mongod --shardsvr --replSet shard2ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard2_2_data:/data/db
+    networks:
+      - app_network
+
+  shard2_3:
+    image: mongo:6.0
+    container_name: shard2_3
+    command: mongod --shardsvr --replSet shard2ReplSet --port 27018 --bind_ip_all
+    volumes:
+      - shard2_3_data:/data/db
+    networks:
+      - app_network
+
+  # Mongos router
+  mongos:
+    image: mongo:6.0
+    container_name: mongos
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1_1
+      - shard1_2
+      - shard1_3
+      - shard2_1
+      - shard2_2
+      - shard2_3
+    command: >
+      mongos --configdb configReplSet/configsvr1:27019,configsvr2:27019,configsvr3:27019 --bind_ip_all --port 27017
+    ports:
+      - 27017:27017
+    networks:
+      - app_network
+
+  # Init container to run init.sh
+  init-mongo:
+    image: mongo:6.0
+    container_name: init-mongo
+    depends_on:
+      - configsvr1
+      - configsvr2
+      - configsvr3
+      - shard1_1
+      - shard1_2
+      - shard1_3
+      - shard2_1
+      - shard2_2
+      - shard2_3
+      - mongos
+    volumes:
+      - ./:/scripts
+    working_dir: /scripts
+    entrypoint: ["bash", "/scripts/init.sh"]
+    networks:
+      - app_network
+
+  # mongodb:
+  #   container_name: mongodb
+  #   image: mongo:6-jammy
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+  #     - dbdata6:/data/db
+  #   networks:
+  #     - app_network
+
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -64,19 +206,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-    networks:
-      - app_network
-  
-  mongodb:
-    container_name: mongodb
-    image: mongo:6-jammy
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-    ports:
-      - 27017:27017
-    volumes:
-      - dbdata6:/data/db
     networks:
       - app_network
 
@@ -143,6 +272,9 @@ services:
       RATE: 1
       DURATION: "1m"
       TEST_NAME: "k6_lt_peak_load_stress"
+    depends_on:
+      init-mongo:
+        condition: service_completed_successfully
     networks:
       - app_network
     entrypoint: ["sh", "-c", "sleep 60 && k6 run /k6/test.js"]
@@ -165,6 +297,15 @@ volumes:
   esdata:
     driver: local
   dbdata6:
+  configsvr1_data:
+  configsvr2_data:
+  configsvr3_data:
+  shard1_1_data:
+  shard1_2_data:
+  shard1_3_data:
+  shard2_1_data:
+  shard2_2_data:
+  shard2_3_data:
   redis_data:
   grafana-data:
 
